@@ -5,7 +5,12 @@ const connectDB = require("./config/db");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
+const hsts = require("hsts");
 const path = require("path");
+const helmet = require("helmet");
+const pino = require("pino");
+const pretty = require("pino-pretty");
+const logger = pino(pretty());
 
 // IMPORT ROUTES
 const userRoutes = require("./routes/user");
@@ -13,6 +18,7 @@ const authRoutes = require("./routes/authentication");
 const blogRoutes = require("./routes/blog");
 const contactRoutes = require("./routes/contact");
 const projectRoutes = require("./routes/project");
+const errorRoute = require("./routes/errorHandler");
 
 // IMPORT MIDDLEWARE
 const errorMiddleware = require("./middleware/errorMiddleware");
@@ -23,6 +29,22 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// Use Helmet for security headers
+// Default headers set by Helmet:
+// 1. X-Content-Type-Options (nosniff) - Prevents browsers from MIME-sniffing the content.
+// 2. X-Frame-Options (sameorigin) - Prevents clickjacking by allowing frames only from the same origin.
+// 3. X-DNS-Prefetch-Control - Controls browser DNS prefetching. Default is 'off'.
+// 4. Strict-Transport-Security (HSTS) - Enforces HTTPS connections to the server.
+// 5. X-Permitted-Cross-Domain-Policies - Controls Adobe Flash/Acrobat content.
+// 6. Referrer-Policy (no-referrer) - Controls the information sent in the `Referer` header.
+// 7. Expect-CT - Enforces Certificate Transparency.
+// 8. X-XSS-Protection - Enables browser's built-in XSS filtering for older browsers.
+app.use(helmet());
+// Custom headers
+app.use(helmet.frameguard({ action: "sameorigin" }));
+app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
+
+logger.info("Routes Definition");
 //ROUTES
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
@@ -30,13 +52,9 @@ app.use("/api/blog", blogRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/project", projectRoutes);
 
-// Error handling middleware
-app.use(errorMiddleware);
-
 // Serve static files (images, CSS, JS) with caching
 app.use(
-  express.static(path.join(__dirname, "..", "frontend"), {
-    //TODO change the path for an actual entry point of frontend
+  express.static(path.join(__dirname, "build"), {
     setHeaders: (res, path) => {
       if (path.endsWith(".js") || path.endsWith(".css")) {
         res.set("Cache-Control", "public, max-age=31536000, immutable"); // Cache for 1 year
@@ -48,27 +66,34 @@ app.use(
   })
 );
 
-const PORT_HTTP = process.env.PORT_HTTP || 5000;
-const PORT_HTTPS = process.env.PORT_HTTPS || 5001;
+app.use(errorRoute);
 
-http.createServer(app).listen(PORT_HTTP, () => {
-  console.log(`Server running on port ${PORT_HTTP}`);
-});
+// Port configuration
+const { PORT_HTTP = 5000, PORT_HTTPS = 5001 } = process.env;
 
-// Create HTTPS server with SSL certificate
-const options = {
-  key: fs.readFileSync(path.join(__dirname, "ssl", "private-key.pem")), // Path to your private key
-  cert: fs.readFileSync(path.join(__dirname, "ssl", "certificate.pem")), // Path to your certificate
+// SSL certificate options
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, "ssl", "private-key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "ssl", "certificate.pem")),
 };
 
-// Create HTTPS server
-https.createServer(options, (req, res) => {
-  // Apply HSTS middleware
-  hsts(hstsOptions)(req, res, () => {
-    app(req, res);
-  });
+// Apply HSTS middleware to the HTTPS server
+const hstsOptions = {
+  maxAge: 31536000, // 1 year in seconds
+  includeSubDomains: true, // Apply HSTS to all subdomains
+  preload: true, // Include this site in the HSTS preload list
+};
+
+// Create HTTP server
+http.createServer(app).listen(PORT_HTTP, () => {
+  logger.info(`HTTP Server running on port ${PORT_HTTP}`);
 });
 
-app.listen(PORT_HTTPS, () => {
-  console.log(`Server running on port ${PORT_HTTPS}`);
-});
+// Create HTTPS server with HSTS middleware
+https
+  .createServer(sslOptions, (req, res) => {
+    hsts(hstsOptions)(req, res, () => app(req, res));
+  })
+  .listen(PORT_HTTPS, () => {
+    logger.info(`HTTPS Server running on port ${PORT_HTTPS}`);
+  });
