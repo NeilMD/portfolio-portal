@@ -43,10 +43,19 @@ for (const file in dummyDataFiles) {
   modules.dummyData[file] = dummyDataFiles[file];
 }
 
-// Load Controller Data
+// Load Models
+const modelFiles = requireDir("./models");
+modules.model = Object.create({});
+logger.info("Load Model");
+for (const file in modelFiles) {
+  logger.info(`Model File: ${file}`);
+  modules.model[file] = modelFiles[file];
+}
+
+// Load Controller
 const controllerFiles = requireDir("./controllers");
 modules.controller = Object.create({});
-logger.info("Load Controller Data");
+logger.info("Load Controller ");
 for (const file in controllerFiles) {
   logger.info(`Controller File: ${file}`);
   modules.controller[file] = controllerFiles[file];
