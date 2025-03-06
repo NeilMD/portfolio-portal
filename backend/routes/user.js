@@ -1,11 +1,4 @@
-const express = require("express");
-const router = express.Router();
-const cacheMiddleware = require("../middleware/cacheMiddleware");
-
-// Load Dummy Data
-const dummyUsers = require("../data/users");
-
-module.exports = (logger, router, dummyUsers, cacheMiddleware) => {
+module.exports = (logger, router, controller, cacheMiddleware) => {
   // GET Retrieves the profile information (bio, skills, social links, etc.).
   router.get(
     "/profile/:userId",

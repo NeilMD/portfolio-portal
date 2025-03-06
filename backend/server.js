@@ -36,6 +36,15 @@ for (const file in dummyDataFiles) {
   modules.dummyData[file] = dummyDataFiles[file];
 }
 
+// Load Controller Data
+const controllerFiles = requireDir("./controllers");
+modules.controller = Object.create({});
+logger.info("Load Controller Data");
+for (const file in controllerFiles) {
+  logger.info(`File: ${file}`);
+  modules.controller[file] = controllerFiles[file];
+}
+
 // Load Routes
 const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
