@@ -1,8 +1,8 @@
 // IMPORT MODULES
 const express = require("express");
 const router = express.Router();
-const dotenv = require("dotenv");
-const connectDB = require("./config/db");
+
+const dotenv = require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
@@ -13,12 +13,19 @@ const pino = require("pino");
 const pretty = require("pino-pretty");
 const logger = pino(pretty());
 const requireDir = require("require-dir");
+const mongoose = require("mongoose");
+
 const cacheMiddleware = require("./middleware/cacheMiddleware");
 
 const modules = Object.create({});
 modules.logger = logger;
 modules.router = router;
+modules.mongoose = mongoose;
+modules.process = process;
+
+require("./config/db")(modules.logger, modules.mongoose, modules.process);
 modules.cacheMiddleware = cacheMiddleware;
+
 // IMPORT MIDDLEWARE
 // const middlewareFiles = requireDir("./middleware");
 // logger.info("Load Middleware");
@@ -32,7 +39,7 @@ const dummyDataFiles = requireDir("./data");
 modules.dummyData = Object.create({});
 logger.info("Load Dummy Data");
 for (const file in dummyDataFiles) {
-  logger.info(`File: ${file}`);
+  logger.info(`Dummy Data File: ${file}`);
   modules.dummyData[file] = dummyDataFiles[file];
 }
 
@@ -41,7 +48,7 @@ const controllerFiles = requireDir("./controllers");
 modules.controller = Object.create({});
 logger.info("Load Controller Data");
 for (const file in controllerFiles) {
-  logger.info(`File: ${file}`);
+  logger.info(`Controller File: ${file}`);
   modules.controller[file] = controllerFiles[file];
 }
 
@@ -50,13 +57,11 @@ const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
 logger.info("Load Routes");
 for (const file in routeFiles) {
-  logger.info(`File: ${file}`);
+  logger.info(`Route File: ${file}`);
   modules.route[file] = routeFiles[file];
 }
 
-dotenv.config();
 // connect to DB
-connectDB(modules.logger);
 const app = express();
 app.use(express.json());
 
