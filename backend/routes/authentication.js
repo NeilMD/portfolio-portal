@@ -1,6 +1,6 @@
-module.exports = (logger, router, controller) => {
+module.exports = (logger, cacheMiddleware, router, controller) => {
   // POST Registers a new user.
-  router.post("/signup", () => {});
+  router.post("/signup", controller.AuthController.signup);
 
   // POST Logs in an existing user and provides an authentication token.
   router.post("/login", () => {});
@@ -10,4 +10,6 @@ module.exports = (logger, router, controller) => {
 
   // POST Retrieves the currently authenticated user’s details.
   router.post("/verify", () => {});
+
+  return router;
 };

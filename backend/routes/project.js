@@ -1,4 +1,4 @@
-module.exports = (logger, router, controller, cacheMiddleware) => {
+module.exports = (logger, cacheMiddleware, router, controller) => {
   // GET Fetches all projects of a specific user.
   router.get(
     "/:userId",
@@ -27,4 +27,6 @@ module.exports = (logger, router, controller, cacheMiddleware) => {
     cacheMiddleware(`public, max-age=31536000`), // Cache for 1 year for media files
     () => {}
   );
+
+  return router;
 };

@@ -19,10 +19,10 @@ const cacheMiddleware = require("./middleware/cacheMiddleware");
 
 const modules = Object.create({});
 modules.logger = logger;
-modules.router = router;
+modules.express_router = router;
 modules.mongoose = mongoose;
 modules.process = process;
-
+modules.config = require("./config");
 require("./config/db")(modules.logger, modules.mongoose, modules.process);
 modules.cacheMiddleware = cacheMiddleware;
 
@@ -49,7 +49,7 @@ modules.model = Object.create({});
 logger.info("Load Model");
 for (const file in modelFiles) {
   logger.info(`Model File: ${file}`);
-  modules.model[file] = modelFiles[file];
+  modules.model[file] = modelFiles[file](modules.logger, modules.mongoose);
 }
 
 // Load Controller
@@ -58,18 +58,27 @@ modules.controller = Object.create({});
 logger.info("Load Controller ");
 for (const file in controllerFiles) {
   logger.info(`Controller File: ${file}`);
-  modules.controller[file] = controllerFiles[file];
+  modules.controller[file] = controllerFiles[file](
+    modules.config,
+    modules.model,
+    modules.logger
+  );
 }
+console.log(modules.cacheMiddleware);
 
 // Load Routes
 const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
 logger.info("Load Routes");
 for (const file in routeFiles) {
-  logger.info(`Route File: ${file}`);
-  modules.route[file] = routeFiles[file];
+  logger.info(`Route File: ${routeFiles}`);
+  modules.route[file] = routeFiles[file](
+    modules.logger,
+    modules.cacheMiddleware,
+    modules.express_router,
+    modules.controller
+  );
 }
-
 // connect to DB
 const app = express();
 app.use(express.json());
@@ -91,6 +100,7 @@ app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
 logger.info("Routes Definition");
 //ROUTES
+logger.info(modules.route);
 app.use("/api/users", modules.route.user);
 app.use("/api/auth", modules.route.authentication);
 app.use("/api/blog", modules.route.blog);

@@ -1,4 +1,4 @@
-module.exports = (logger, router, controller, cacheMiddleware) => {
+module.exports = (logger, cacheMiddleware, router, controller) => {
   // Get Retrieves all blog posts by a specific user.
   router.get(
     "/:userId",
@@ -17,4 +17,6 @@ module.exports = (logger, router, controller, cacheMiddleware) => {
 
   // POST Creates a new blog post (title, content, tags).
   router.post("/add", () => {});
+
+  return router;
 };

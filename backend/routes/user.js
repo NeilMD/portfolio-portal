@@ -1,15 +1,11 @@
-module.exports = (logger, router, controller, cacheMiddleware) => {
+module.exports = (logger, cacheMiddleware, router, controller) => {
   // GET Retrieves the profile information (bio, skills, social links, etc.).
   router.get(
     "/profile/:userId",
     cacheMiddleware(`public, max-age=300`), // 5 minutes for profile
     (req, res) => {
       logger.info("Begin");
-      res.json(
-        dummyUsers.find((user) => {
-          return user.id == req.params.userId;
-        })
-      );
+
       logger.info("End");
     }
   );
@@ -25,11 +21,9 @@ module.exports = (logger, router, controller, cacheMiddleware) => {
     "/",
     cacheMiddleware(`public, max-age=600`), // 10 minutes for the list of users
     (req, res) => {
-      res.json(
-        dummyUsers.find((user) => {
-          return user.id == req.params.userId;
-        })
-      );
+      res.json();
     }
   );
+
+  return router;
 };
