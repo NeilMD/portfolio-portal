@@ -12,21 +12,38 @@ const helmet = require("helmet");
 const pino = require("pino");
 const pretty = require("pino-pretty");
 const logger = pino(pretty());
+const requireDir = require("require-dir");
+const cacheMiddleware = require("./middleware/cacheMiddleware");
 
 const modules = Object.create({});
 modules.logger = logger;
 modules.router = router;
-
-// IMPORT ROUTES
-modules.route.userRoutes = require("./routes/user")(modules.logger);
-modules.route.authRoutes = require("./routes/authentication")(modules.logger);
-modules.route.blogRoutes = require("./routes/blog")(modules.logger);
-modules.route.contactRoutes = require("./routes/contact")(modules.logger);
-modules.route.projectRoutes = require("./routes/project")(modules.logger);
-modules.route.errorRoute = require("./routes/errorHandler")(modules.logger);
-
+modules.cacheMiddleware = cacheMiddleware;
 // IMPORT MIDDLEWARE
-const errorMiddleware = require("./middleware/errorMiddleware");
+// const middlewareFiles = requireDir("./middleware");
+// logger.info("Load Middleware");
+// for (const file in middlewareFiles) {
+//   logger.info(`File: ${file}`);
+//   modules.middleware[file] = middlewareFiles[file](modules.logger);
+// }
+
+// Load Dummy Data
+const dummyDataFiles = requireDir("./data");
+modules.dummyData = Object.create({});
+logger.info("Load Dummy Data");
+for (const file in dummyDataFiles) {
+  logger.info(`File: ${file}`);
+  modules.dummyData[file] = dummyDataFiles[file];
+}
+
+// Load Routes
+const routeFiles = requireDir("./routes");
+modules.route = Object.create({});
+logger.info("Load Routes");
+for (const file in routeFiles) {
+  logger.info(`File: ${file}`);
+  modules.route[file] = routeFiles[file];
+}
 
 dotenv.config();
 // connect to DB
@@ -51,11 +68,11 @@ app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
 logger.info("Routes Definition");
 //ROUTES
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/blog", blogRoutes);
-app.use("/api/contact", contactRoutes);
-app.use("/api/project", projectRoutes);
+app.use("/api/users", modules.route.user);
+app.use("/api/auth", modules.route.authentication);
+app.use("/api/blog", modules.route.blog);
+app.use("/api/contact", modules.route.contact);
+app.use("/api/project", modules.route.project);
 
 // Serve static files (images, CSS, JS) with caching
 app.use(
@@ -71,7 +88,9 @@ app.use(
   })
 );
 
-app.use(errorRoute);
+app.use(() => {
+  logger.error("Route Error");
+});
 
 // Port configuration
 const { PORT_HTTP = 5000, PORT_HTTPS = 5001 } = process.env;

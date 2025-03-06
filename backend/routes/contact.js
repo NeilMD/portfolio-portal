@@ -1,10 +1,7 @@
-const express = require("express");
-const router = express.Router();
+module.exports = (logger, router, controller, cacheMiddleware) => {
+  // GET Fetches all contact messages.
+  router.get("/messages", () => {});
 
-// GET Fetches all contact messages.
-router.get("/messages", () => {});
-
-// POST Submits a new contact message or inquiry (name, email, message).
-router.post("/messages", () => {});
-
-module.exports = router;
+  // POST Submits a new contact message or inquiry (name, email, message).
+  router.post("/messages", () => {});
+};

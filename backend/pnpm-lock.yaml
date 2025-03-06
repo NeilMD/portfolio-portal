@@ -35,6 +35,9 @@ importers:
       pino-pretty:
         specifier: ^13.0.0
         version: 13.0.0
+      require-dir:
+        specifier: ^1.2.0
+        version: 1.2.0
 
 packages:
 
@@ -410,6 +413,9 @@ packages:
   real-require@0.2.0:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
+
+  require-dir@1.2.0:
+    resolution: {integrity: sha512-LY85DTSu+heYgDqq/mK+7zFHWkttVNRXC9NKcKGyuGLdlsfbjEPrIEYdCVrx6hqnJb+xSu3Lzaoo8VnmOhhjNA==}
 
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
@@ -885,6 +891,8 @@ snapshots:
       unpipe: 1.0.0
 
   real-require@0.2.0: {}
+
+  require-dir@1.2.0: {}
 
   safe-buffer@5.2.1: {}
 
