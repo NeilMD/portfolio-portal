@@ -6,14 +6,15 @@ module.exports = (config, models, logger) => {
 
   authController.signup = (req, res) => {
     logger.info("AuthController/signup: START");
+    logger.info(req.body);
+    const hash = bcrypt.hashSync(req.body.password, config.saltRounds);
 
-    bcrypt.hash(req.body.password, config.saltRounds, function (err, hash) {
-      const newUser = new User({ username: req.body.username, password: hash });
+    const newUser = new User({ username: req.body.username, password: hash });
 
-      kitty.save();
-    });
+    newUser.save();
 
     logger.info("AuthController/signup: END");
+    res.status(201).json({ message: "User registered successfully!" });
   };
 
   return authController;
