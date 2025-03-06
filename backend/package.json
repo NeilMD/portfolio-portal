@@ -11,6 +11,7 @@
     "pino-pretty": "^13.0.0"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "npx nodemon server.js"
   }
 }

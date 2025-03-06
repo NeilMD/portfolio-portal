@@ -1,5 +1,6 @@
 // IMPORT MODULES
 const express = require("express");
+const router = express.Router();
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const fs = require("fs");
@@ -12,20 +13,24 @@ const pino = require("pino");
 const pretty = require("pino-pretty");
 const logger = pino(pretty());
 
+const modules = Object.create({});
+modules.logger = logger;
+modules.router = router;
+
 // IMPORT ROUTES
-const userRoutes = require("./routes/user");
-const authRoutes = require("./routes/authentication");
-const blogRoutes = require("./routes/blog");
-const contactRoutes = require("./routes/contact");
-const projectRoutes = require("./routes/project");
-const errorRoute = require("./routes/errorHandler");
+modules.route.userRoutes = require("./routes/user")(modules.logger);
+modules.route.authRoutes = require("./routes/authentication")(modules.logger);
+modules.route.blogRoutes = require("./routes/blog")(modules.logger);
+modules.route.contactRoutes = require("./routes/contact")(modules.logger);
+modules.route.projectRoutes = require("./routes/project")(modules.logger);
+modules.route.errorRoute = require("./routes/errorHandler")(modules.logger);
 
 // IMPORT MIDDLEWARE
 const errorMiddleware = require("./middleware/errorMiddleware");
 
 dotenv.config();
-// TODO
-// connectDB();
+// connect to DB
+connectDB(modules.logger);
 const app = express();
 app.use(express.json());
 
