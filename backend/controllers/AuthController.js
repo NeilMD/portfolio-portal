@@ -1,4 +1,6 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv").config();
 
 module.exports = (config, models, logger, util) => {
   let authController = Object.create({});
@@ -42,9 +44,10 @@ module.exports = (config, models, logger, util) => {
 
     let objResult = util.responseUtil();
     const { username, password } = req.body;
+    let token = "";
+
     try {
       // Check if user exists
-
       const user = await User.findOne({ username }).select("+password");
 
       if (!user) {
@@ -62,6 +65,14 @@ module.exports = (config, models, logger, util) => {
           objResult.numCode = 1;
           objResult.objError =
             "Invalid email or password. Please try again with the correct credentials.";
+        } else {
+          token = jwt.sign(
+            { userId: user._id },
+            process.env.SECRET_ACCESS_TOKEN,
+            {
+              expiresIn: "7d",
+            }
+          );
         }
       }
     } catch (err) {
@@ -70,9 +81,12 @@ module.exports = (config, models, logger, util) => {
       objResult.objError = "Internal Server Error";
     }
 
-    logger.info("AuthController/signup: END");
+    logger.info("AuthController/login: END");
     if (objResult.numCode == 0) {
       return res.status(201).json({
+        data: {
+          token,
+        },
         message: "User Login successfully!",
       });
     } else {
