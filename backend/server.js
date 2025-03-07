@@ -16,6 +16,7 @@ const requireDir = require("require-dir");
 const mongoose = require("mongoose");
 
 const cacheMiddleware = require("./middleware/cacheMiddleware");
+const errorMiddleware = require("./middleware/errorMiddleware");
 
 const modules = Object.create({});
 modules.logger = logger;
@@ -24,7 +25,9 @@ modules.mongoose = mongoose;
 modules.process = process;
 modules.config = require("./config");
 require("./config/db")(modules.logger, modules.mongoose, modules.process);
-modules.cacheMiddleware = cacheMiddleware;
+modules.middleware = Object.create({});
+modules.middleware.cache = cacheMiddleware;
+modules.middleware.error = errorMiddleware;
 
 // IMPORT MIDDLEWARE
 // const middlewareFiles = requireDir("./middleware");
@@ -37,16 +40,25 @@ modules.cacheMiddleware = cacheMiddleware;
 // Load Dummy Data
 const dummyDataFiles = requireDir("./data");
 modules.dummyData = Object.create({});
-logger.info("Load Dummy Data");
+logger.info("=====Load Dummy Data=====");
 for (const file in dummyDataFiles) {
   logger.info(`Dummy Data File: ${file}`);
   modules.dummyData[file] = dummyDataFiles[file];
 }
 
+// Load Utils
+const utilFiles = requireDir("./utils");
+modules.util = Object.create({});
+logger.info("=====Load Utils =====");
+for (const file in utilFiles) {
+  logger.info(`Util File: ${file}`);
+  modules.util[file] = dummyDataFiles[file];
+}
+
 // Load Models
 const modelFiles = requireDir("./models");
 modules.model = Object.create({});
-logger.info("Load Model");
+logger.info("=====Load Model=====");
 for (const file in modelFiles) {
   logger.info(`Model File: ${file}`);
   modules.model[file] = modelFiles[file](modules.logger, modules.mongoose);
@@ -55,34 +67,39 @@ for (const file in modelFiles) {
 // Load Controller
 const controllerFiles = requireDir("./controllers");
 modules.controller = Object.create({});
-logger.info("Load Controller ");
+logger.info("=====Load Controller=====");
 for (const file in controllerFiles) {
   logger.info(`Controller File: ${file}`);
   modules.controller[file] = controllerFiles[file](
     modules.config,
     modules.model,
-    modules.logger
+    modules.logger,
+    modules.util
   );
 }
-console.log(modules.cacheMiddleware);
 
 // Load Routes
 const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
-logger.info("Load Routes");
+logger.info("=====Load Routes=====");
 for (const file in routeFiles) {
-  logger.info(`Route File: ${routeFiles}`);
+  logger.info(`Route File: ${file}`);
   modules.route[file] = routeFiles[file](
     modules.logger,
-    modules.cacheMiddleware,
+    modules.middleware.cache,
     modules.express_router,
     modules.controller
   );
 }
-// connect to DB
+logger.info("=====FILE LOADING DONE=====");
+logger.info("===========================");
+logger.info("===========================");
+
+logger.info("Header Security APP");
 const app = express();
 app.use(express.json());
 
+logger.info("Header Security Init");
 // Use Helmet for security headers
 // Default headers set by Helmet:
 // 1. X-Content-Type-Options (nosniff) - Prevents browsers from MIME-sniffing the content.
@@ -98,9 +115,8 @@ app.use(helmet());
 app.use(helmet.frameguard({ action: "sameorigin" }));
 app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
-logger.info("Routes Definition");
+logger.info("Routes Init");
 //ROUTES
-logger.info(modules.route);
 app.use("/api/users", modules.route.user);
 app.use("/api/auth", modules.route.authentication);
 app.use("/api/blog", modules.route.blog);
@@ -121,9 +137,7 @@ app.use(
   })
 );
 
-app.use(() => {
-  logger.error("Route Error");
-});
+app.use(modules.middleware.error);
 
 // Port configuration
 const { PORT_HTTP = 5000, PORT_HTTPS = 5001 } = process.env;

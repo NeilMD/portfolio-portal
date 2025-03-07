@@ -10,6 +10,6 @@ module.exports = (logger, mongoose) => {
       required: true,
     },
   });
-  logger.info("User Model Loaded");
+
   return mongoose.model("User", UserSchema);
 };
