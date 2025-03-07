@@ -8,6 +8,7 @@ module.exports = (logger, mongoose) => {
     password: {
       type: String,
       required: true,
+      select: false,
     },
   });
 

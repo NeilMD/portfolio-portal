@@ -9,8 +9,8 @@ const cacheMiddleware = (options) => {
     res.set("Cache-Control", `${options}`);
     logger.info(`[Cache] Cache-Control set to ${options}`);
 
+    next();
     logger.info("CacheMiddleWare: END");
-    next(); // Move to the next middleware or route handler
   };
 };
 

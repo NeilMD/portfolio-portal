@@ -18,25 +18,23 @@ const mongoose = require("mongoose");
 const cacheMiddleware = require("./middleware/cacheMiddleware");
 const errorMiddleware = require("./middleware/errorMiddleware");
 
+// Module Init
 const modules = Object.create({});
 modules.logger = logger;
 modules.express_router = router;
 modules.mongoose = mongoose;
 modules.process = process;
 modules.config = require("./config");
-require("./config/db")(modules.logger, modules.mongoose, modules.process);
 modules.middleware = Object.create({});
 modules.middleware.cache = cacheMiddleware;
 modules.middleware.error = errorMiddleware;
 
-// IMPORT MIDDLEWARE
-// const middlewareFiles = requireDir("./middleware");
-// logger.info("Load Middleware");
-// for (const file in middlewareFiles) {
-//   logger.info(`File: ${file}`);
-//   modules.middleware[file] = middlewareFiles[file](modules.logger);
-// }
+// DB Conenct
+require("./config/db")(modules.logger, modules.mongoose, modules.process);
 
+logger.info("===========================");
+logger.info("===========================");
+logger.info("=====FILE LOADING BEGIN====");
 // Load Dummy Data
 const dummyDataFiles = requireDir("./data");
 modules.dummyData = Object.create({});
@@ -91,11 +89,12 @@ for (const file in routeFiles) {
     modules.controller
   );
 }
+
 logger.info("=====FILE LOADING DONE=====");
 logger.info("===========================");
 logger.info("===========================");
 
-logger.info("Header Security APP");
+logger.info("App Init");
 const app = express();
 app.use(express.json());
 
