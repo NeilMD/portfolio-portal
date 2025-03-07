@@ -52,7 +52,7 @@ modules.util = Object.create({});
 logger.info("=====Load Utils =====");
 for (const file in utilFiles) {
   logger.info(`Util File: ${file}`);
-  modules.util[file] = dummyDataFiles[file];
+  modules.util[file] = utilFiles[file];
 }
 
 // Load Models

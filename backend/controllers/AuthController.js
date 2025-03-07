@@ -4,7 +4,7 @@ module.exports = (config, models, logger, util) => {
   let authController = Object.create({});
   let User = models.User;
 
-  authController.signup = (req, res) => {
+  authController.signup = async (req, res) => {
     logger.info("AuthController/signup: START");
 
     const { username = "", password = "" } = req.body;
@@ -13,10 +13,14 @@ module.exports = (config, models, logger, util) => {
 
     const newUser = new User({ username: username, password: hash });
 
-    util.tc(() => newUser.save());
-
+    let result = await util.tc(() => newUser.save());
     logger.info("AuthController/signup: END");
-    res.status(201).json({ message: "User registered successfully!" });
+
+    if (result.numCode == 0) {
+      res.status(201).json({ message: "User registered successfully!" });
+    } else {
+      res.status(500);
+    }
   };
 
   return authController;
