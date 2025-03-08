@@ -14,6 +14,7 @@ const pretty = require("pino-pretty");
 const logger = pino(pretty());
 const requireDir = require("require-dir");
 const mongoose = require("mongoose");
+const asyncHandler = require("express-async-handler");
 
 // Module Init
 const modules = Object.create({});
@@ -21,8 +22,8 @@ modules.logger = logger;
 modules.express_router = router;
 modules.mongoose = mongoose;
 modules.process = process;
+modules.asyncHandler = asyncHandler;
 modules.config = require("./config");
-modules.middleware = Object.create({});
 
 // DB Conenct
 require("./config/db")(modules.logger, modules.mongoose, modules.process);
@@ -78,6 +79,7 @@ for (const file in controllerFiles) {
     logger: modules.logger,
     util: modules.util,
     process: modules.process,
+    asyncHandler: modules.asyncHandler,
   });
 }
 // Load Routes
@@ -91,7 +93,11 @@ for (const file in routeFiles) {
     cacheMiddleware: modules.middleware.cacheMiddleware,
     controller: modules.controller,
     router: modules.express_router,
-    authMiddleware: modules.middleware.authMiddleware(modules.util),
+    authMiddleware: modules.middleware.authMiddleware({
+      logger: modules.logger,
+      utils: modules.util,
+      process: modules.process,
+    }),
   });
 }
 
@@ -141,7 +147,7 @@ app.use(
   })
 );
 
-app.use(modules.middleware.errorMiddleware);
+app.use(modules.middleware.errorMiddleware({ logger: modules.logger }));
 
 // Port configuration
 const { PORT_HTTP = 5002, PORT_HTTPS = 5001 } = process.env;

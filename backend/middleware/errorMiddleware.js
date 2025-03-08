@@ -1,11 +1,11 @@
-const pino = require("pino");
-const pretty = require("pino-pretty");
-const logger = pino(pretty());
+const errorMiddleware = ({ logger }) => {
+  return (err, req, res, next) => {
+    logger.info("Error Middleware: START");
+    logger.error(err);
 
-const errorMiddleware = (err, req, res, next) => {
-  logger.info("Error Middleware");
-  logger.error(err);
-  res.status(500).json({ message: err.message });
+    logger.info("Error Middleware: END");
+    res.status(500).json({ message: err.message });
+  };
 };
 
 module.exports = errorMiddleware;

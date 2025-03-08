@@ -1,12 +1,13 @@
-module.exports = ({ config, model, logger, util }) => {
+module.exports = ({ config, model, logger, util, asyncHandler }) => {
   let userController = Object.create({});
 
-  userController.profileEdit = (req, res) => {
+  userController.profileEdit = asyncHandler((req, res) => {
     logger.info("userController/profileEdit: START");
+    let objResult = util.responseUtil();
 
     logger.info("userController/profileEdit: END");
-    return res.json({});
-  };
+    return res.json(objResult);
+  });
 
   return userController;
 };

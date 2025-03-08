@@ -1,4 +1,4 @@
-module.exports = ({ logger, controller, router }) => {
+module.exports = ({ controller, router }) => {
   // POST Registers a new user.
   router.post("/signup", controller.AuthController.signup);
 
