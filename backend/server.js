@@ -113,6 +113,7 @@ logger.info("===========================");
 logger.info("App Init");
 const app = express();
 app.use(express.json());
+
 logger.info("Header Security Init");
 // Use Helmet for security headers
 // Default headers set by Helmet:
@@ -129,6 +130,7 @@ app.use(helmet());
 app.use(helmet.frameguard({ action: "sameorigin" }));
 app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
+logger.info("Google Auth Init");
 // Passport configuration for Google OAuth
 passport.use(
   new GoogleStrategy(
@@ -143,7 +145,7 @@ passport.use(
       logger.info("GOOGLE ASYNC START");
       let user = "";
 
-      // Try to find the user in your database
+      // Try to find the user in database
       user = await modules.model.User.findOne({
         googleId: profile.id,
       });
@@ -161,14 +163,15 @@ passport.use(
     }
   )
 );
+
 logger.info("Routes Init");
 //ROUTES
-
 app.use("/api/user", modules.route.user);
 app.use("/api/auth/", modules.route.authentication);
 app.use("/api/blog", modules.route.blog);
 app.use("/api/contact", modules.route.contact);
 app.use("/api/project", modules.route.project);
+
 // Serve static files (images, CSS, JS) with caching
 app.use(
   express.static(path.join(__dirname, "build"), {
