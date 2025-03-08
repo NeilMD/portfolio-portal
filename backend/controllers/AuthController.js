@@ -87,11 +87,10 @@ module.exports = ({
 
     let objResult = util.responseUtil();
 
-    const { user } = req.user;
-
+    const user = req.user;
     let token = "";
     token = jwt.sign(
-      { userId: user?._id, googleId: user?.googleId, name: user?.name },
+      { userId: user?.userId, googleId: user?.googleId, name: user?.name },
       process.env.SECRET_ACCESS_TOKEN,
       {
         expiresIn: "7d",

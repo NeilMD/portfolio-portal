@@ -143,23 +143,39 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       logger.info("GOOGLE ASYNC START");
-      let user = "";
-
+      let resultUser = "",
+        existingUser = "";
+      let User = modules.model.User;
       // Try to find the user in database
-      user = await modules.model.User.findOne({
-        googleId: profile.id,
-      });
+      existingUser = await modules.util.tc(
+        async () =>
+          await User.findOne({
+            googleId: profile.id,
+          })
+      );
 
       // If user doesn't exist, create a new one
-      if (!user) {
-        user = await modules.model.User.create({
+      if (existingUser.objResult === 0) {
+        const newUser = new User({
           googleId: profile?.id,
           name: profile?.displayName,
           email: profile?.emails?.value,
         });
+        const tempUser = await newUser.save();
+        resultUser = {
+          userId: tempUser._id,
+          googleId: tempUser.googleId,
+          name: profile.displayName,
+        };
+      } else {
+        resultUser = {
+          userId: existingUser.objResult._id,
+          googleId: existingUser.objResult.googleId,
+          name: profile.displayName,
+        };
       }
       logger.info("GOOGLE ASYNC END");
-      return done(null, user);
+      return done(null, resultUser);
     }
   )
 );
