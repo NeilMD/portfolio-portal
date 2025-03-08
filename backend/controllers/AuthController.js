@@ -71,7 +71,7 @@ module.exports = ({
             expiresIn: "7d",
           }
         );
-        objData = token;
+        objResult.objData = token;
         objResult.objSuccess = "User Login successfully!";
       }
     }
