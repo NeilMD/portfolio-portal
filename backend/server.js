@@ -15,9 +15,6 @@ const logger = pino(pretty());
 const requireDir = require("require-dir");
 const mongoose = require("mongoose");
 
-const cacheMiddleware = require("./middleware/cacheMiddleware");
-const errorMiddleware = require("./middleware/errorMiddleware");
-
 // Module Init
 const modules = Object.create({});
 modules.logger = logger;
@@ -26,8 +23,6 @@ modules.mongoose = mongoose;
 modules.process = process;
 modules.config = require("./config");
 modules.middleware = Object.create({});
-modules.middleware.cache = cacheMiddleware;
-modules.middleware.error = errorMiddleware;
 
 // DB Conenct
 require("./config/db")(modules.logger, modules.mongoose, modules.process);
@@ -42,6 +37,15 @@ logger.info("=====Load Dummy Data=====");
 for (const file in dummyDataFiles) {
   logger.info(`Dummy Data File: ${file}`);
   modules.dummyData[file] = dummyDataFiles[file];
+}
+
+// Load Middleware
+const middlewareFiles = requireDir("./middleware");
+modules.middleware = Object.create({});
+logger.info("=====Load Middleware=====");
+for (const file in middlewareFiles) {
+  logger.info(`Dummy Middleware File: ${file}`);
+  modules.middleware[file] = middlewareFiles[file];
 }
 
 // Load Utils
@@ -68,26 +72,27 @@ modules.controller = Object.create({});
 logger.info("=====Load Controller=====");
 for (const file in controllerFiles) {
   logger.info(`Controller File: ${file}`);
-  modules.controller[file] = controllerFiles[file](
-    modules.config,
-    modules.model,
-    modules.logger,
-    modules.util
-  );
+  modules.controller[file] = controllerFiles[file]({
+    config: modules.config,
+    model: modules.model,
+    logger: modules.logger,
+    util: modules.util,
+    process: modules.process,
+  });
 }
-
 // Load Routes
 const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
 logger.info("=====Load Routes=====");
 for (const file in routeFiles) {
   logger.info(`Route File: ${file}`);
-  modules.route[file] = routeFiles[file](
-    modules.logger,
-    modules.middleware.cache,
-    modules.express_router,
-    modules.controller
-  );
+  modules.route[file] = routeFiles[file]({
+    logger: modules.logger,
+    cacheMiddleware: modules.middleware.cacheMiddleware,
+    controller: modules.controller,
+    router: modules.express_router,
+    authMiddleware: modules.middleware.authMiddleware(modules.util),
+  });
 }
 
 logger.info("=====FILE LOADING DONE=====");
@@ -116,12 +121,12 @@ app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
 logger.info("Routes Init");
 //ROUTES
-app.use("/api/users", modules.route.user);
-app.use("/api/auth", modules.route.authentication);
+
+app.use("/api/user", modules.route.user);
+app.use("/api/auth/", modules.route.authentication);
 app.use("/api/blog", modules.route.blog);
 app.use("/api/contact", modules.route.contact);
 app.use("/api/project", modules.route.project);
-
 // Serve static files (images, CSS, JS) with caching
 app.use(
   express.static(path.join(__dirname, "build"), {
@@ -136,10 +141,10 @@ app.use(
   })
 );
 
-app.use(modules.middleware.error);
+app.use(modules.middleware.errorMiddleware);
 
 // Port configuration
-const { PORT_HTTP = 5000, PORT_HTTPS = 5001 } = process.env;
+const { PORT_HTTP = 5002, PORT_HTTPS = 5001 } = process.env;
 
 // SSL certificate options
 const sslOptions = {

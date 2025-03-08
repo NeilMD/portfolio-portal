@@ -1,10 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
 
-module.exports = (config, models, logger, util) => {
-  let authController = Object.create({});
-  let User = models.User;
+module.exports = ({ config, model, logger, util, process }) => {
+  let authController = {};
+  let User = model.User;
 
   authController.signup = async (req, res) => {
     logger.info("AuthController/signup: START");
@@ -95,6 +94,5 @@ module.exports = (config, models, logger, util) => {
       });
     }
   };
-
   return authController;
 };

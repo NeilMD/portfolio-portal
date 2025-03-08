@@ -1,4 +1,4 @@
-module.exports = (logger, cacheMiddleware, router, controller) => {
+module.exports = ({ router }) => {
   // GET Fetches all contact messages.
   router.get("/messages", () => {});
 
