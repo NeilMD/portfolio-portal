@@ -15,6 +15,8 @@ const logger = pino(pretty());
 const requireDir = require("require-dir");
 const mongoose = require("mongoose");
 const asyncHandler = require("express-async-handler");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20");
 
 // Module Init
 const modules = Object.create({});
@@ -23,6 +25,7 @@ modules.express_router = router;
 modules.mongoose = mongoose;
 modules.process = process;
 modules.asyncHandler = asyncHandler;
+modules.passport = passport;
 modules.config = require("./config");
 
 // DB Conenct
@@ -80,6 +83,7 @@ for (const file in controllerFiles) {
     util: modules.util,
     process: modules.process,
     asyncHandler: modules.asyncHandler,
+    passport: modules.passport,
   });
 }
 // Load Routes
@@ -93,6 +97,7 @@ for (const file in routeFiles) {
     cacheMiddleware: modules.middleware.cacheMiddleware,
     controller: modules.controller,
     router: modules.express_router,
+    passport: modules.passport,
     authMiddleware: modules.middleware.authMiddleware({
       logger: modules.logger,
       utils: modules.util,
@@ -108,7 +113,6 @@ logger.info("===========================");
 logger.info("App Init");
 const app = express();
 app.use(express.json());
-
 logger.info("Header Security Init");
 // Use Helmet for security headers
 // Default headers set by Helmet:
@@ -125,6 +129,38 @@ app.use(helmet());
 app.use(helmet.frameguard({ action: "sameorigin" }));
 app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
 
+// Passport configuration for Google OAuth
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/api/auth/login/google/callback",
+      scope: ["profile"],
+      state: false,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      logger.info("GOOGLE ASYNC START");
+      let user = "";
+
+      // Try to find the user in your database
+      user = await modules.model.User.findOne({
+        googleId: profile.id,
+      });
+
+      // If user doesn't exist, create a new one
+      if (!user) {
+        user = await modules.model.User.create({
+          googleId: profile?.id,
+          name: profile?.displayName,
+          email: profile?.emails?.value,
+        });
+      }
+      logger.info("GOOGLE ASYNC END");
+      return done(null, user);
+    }
+  )
+);
 logger.info("Routes Init");
 //ROUTES
 

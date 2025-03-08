@@ -1,7 +1,15 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-module.exports = ({ config, model, logger, util, process, asyncHandler }) => {
+module.exports = ({
+  config,
+  model,
+  logger,
+  util,
+  process,
+  asyncHandler,
+  passport,
+}) => {
   let authController = {};
   let User = model.User;
 
@@ -71,5 +79,30 @@ module.exports = ({ config, model, logger, util, process, asyncHandler }) => {
     logger.info("AuthController/login: END");
     return res.status(201).json(objResult);
   });
+
+  authController.loginGoogle = passport.authenticate("google");
+
+  authController.googleCallback = asyncHandler(async (req, res) => {
+    logger.info("AuthController/login/google/callback: START");
+
+    let objResult = util.responseUtil();
+
+    const { user } = req.user;
+
+    let token = "";
+    token = jwt.sign(
+      { userId: user?._id, googleId: user?.googleId, name: user?.name },
+      process.env.SECRET_ACCESS_TOKEN,
+      {
+        expiresIn: "7d",
+      }
+    );
+    objResult.objData = { token };
+    objResult.objSuccess = "User Login successfully!";
+
+    logger.info("AuthController/login/google/callback: END");
+    return res.status(201).json(objResult);
+  });
+
   return authController;
 };
