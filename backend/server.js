@@ -26,7 +26,8 @@ modules.mongoose = mongoose;
 modules.process = process;
 modules.asyncHandler = asyncHandler;
 modules.passport = passport;
-modules.config = require("./config");
+modules.config = require("./config/config");
+modules.roles = require("./config/roles");
 
 // DB Conenct
 require("./config/db")(modules.logger, modules.mongoose, modules.process);
@@ -148,7 +149,7 @@ passport.use(
 logger.info("Routes Init");
 //ROUTES
 app.use("/api/user", modules.route.user);
-app.use("/api/auth/", modules.route.authentication);
+app.use("/api/auth", modules.route.authentication);
 app.use("/api/blog", modules.route.blog);
 app.use("/api/contact", modules.route.contact);
 app.use("/api/project", modules.route.project);

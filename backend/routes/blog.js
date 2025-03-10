@@ -1,4 +1,12 @@
 module.exports = ({ controller, router, cacheMiddleware, logger }) => {
+  // Get Retrieves all blog posts.
+  router.get(
+    "/",
+    cacheMiddleware(`public, max-age=300, stale-while-revalidate=60`),
+    // (cached for 5 minutes, with an additional 1 minute for background revalidation).
+    (req, res) => {}
+  );
+
   // Get Retrieves all blog posts by a specific user.
   router.get(
     "/user/:userId",

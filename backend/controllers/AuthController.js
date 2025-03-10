@@ -41,7 +41,6 @@ module.exports = ({
 
   authController.login = asyncHandler(async (req, res) => {
     logger.info("AuthController/login: START");
-
     let objResult = util.responseUtil();
     const { username, password } = req.body;
     let token = "";
@@ -80,6 +79,9 @@ module.exports = ({
     return res.status(201).json(objResult);
   });
 
+  // ================================================
+  // -------------START OF EXTERNAL API--------------
+  // ================================================
   authController.loginGoogle = passport.authenticate("google");
 
   authController.googleCallback = asyncHandler(async (req, res) => {
@@ -143,5 +145,8 @@ module.exports = ({
     logger.info("AuthController/googleMain: END");
     return done(null, resultUser);
   };
+  // ================================================
+  // --------------END OF EXTERNAL APIs--------------
+  // ================================================
   return authController;
 };

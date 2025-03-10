@@ -1,4 +1,12 @@
 module.exports = ({ cacheMiddleware, controller, router }) => {
+  // GET Fetches all projects.
+  router.get(
+    "/",
+    cacheMiddleware(`public, max-age=300, stale-while-revalidate=60`),
+    //(cached for 5 minutes, with an additional 1 minute for background revalidation)
+    () => {}
+  );
+
   // GET Fetches all projects of a specific user.
   router.get(
     "/user/:userId",
@@ -15,18 +23,18 @@ module.exports = ({ cacheMiddleware, controller, router }) => {
     () => {}
   );
 
-  // POST Adds a new project (project description, tech stack, demo links, GitHub repository).
-  router.post("/add", () => {});
-
-  // POST Adds media (images/videos) to a specific project.
-  router.post("/media/:userId/:projectId", () => {});
-
-  // GET Adds media (images/videos) to a specific project.
+  // GET Retrieves media (images/videos) to a specific project.
   router.get(
     "/media/:userId/:projectId/:media",
     cacheMiddleware(`public, max-age=31536000`), // Cache for 1 year for media files
     () => {}
   );
+
+  // POST Adds a new project (project description, tech stack, demo links, GitHub repository).
+  router.post("/add", () => {});
+
+  // POST Adds media (images/videos) to a specific project.
+  router.post("/media", () => {});
 
   return router;
 };
