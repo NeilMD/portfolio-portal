@@ -11,6 +11,7 @@ module.exports = ({ utils, logger, process }) => {
       objResult.numCode = 1;
       objResult.objError = "Please Login.";
     }
+    // TODO Fix this part when verify fails
     if (objResult.numCode === 0) {
       const decoded = jwt.verify(token, process.env.SECRET_ACCESS_TOKEN);
       req.userId = decoded.userId;

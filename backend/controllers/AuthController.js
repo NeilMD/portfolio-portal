@@ -103,5 +103,45 @@ module.exports = ({
     return res.status(201).json(objResult);
   });
 
+  authController.googleMain = async (
+    accessToken,
+    refreshToken,
+    profile,
+    done
+  ) => {
+    logger.info("AuthController/googleMain: START");
+    let resultUser = "",
+      existingUser = "";
+    // Try to find the user in database
+    existingUser = await util.tc(
+      async () =>
+        await User.findOne({
+          googleId: profile.id,
+        })
+    );
+
+    // If user doesn't exist, create a new one
+    if (existingUser.objResult === 0 || !existingUser.objResult) {
+      const newUser = new User({
+        googleId: profile?.id,
+        name: profile?.displayName,
+        email: profile?.emails?.value,
+      });
+      const tempUser = await newUser.save();
+      resultUser = {
+        userId: tempUser._id,
+        googleId: tempUser.googleId,
+        name: profile.displayName,
+      };
+    } else {
+      resultUser = {
+        userId: existingUser.objResult._id,
+        googleId: existingUser.objResult.googleId,
+        name: profile.displayName,
+      };
+    }
+    logger.info("AuthController/googleMain: END");
+    return done(null, resultUser);
+  };
   return authController;
 };
