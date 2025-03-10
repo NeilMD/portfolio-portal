@@ -26,15 +26,23 @@ modules.mongoose = mongoose;
 modules.process = process;
 modules.asyncHandler = asyncHandler;
 modules.passport = passport;
-modules.config = require("./config/config");
-modules.roles = require("./config/roles");
 
-// DB Conenct
-require("./config/db")(modules.logger, modules.mongoose, modules.process);
+// DB Connect
+require("./db")(modules.logger, modules.mongoose, modules.process);
 
 logger.info("===========================");
 logger.info("===========================");
 logger.info("=====FILE LOADING BEGIN====");
+
+// Load Config
+const configFiles = requireDir("./config");
+modules.dummyData = Object.create({});
+logger.info("=====Load Config=====");
+for (const file in configFiles) {
+  logger.info(`Config File: ${file}`);
+  modules[file] = configFiles[file];
+}
+
 // Load Dummy Data
 const dummyDataFiles = requireDir("./data");
 modules.dummyData = Object.create({});
