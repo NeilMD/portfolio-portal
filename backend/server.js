@@ -107,12 +107,6 @@ for (const file in routeFiles) {
     controller: modules.controller,
     router: modules.express_router,
     passport: modules.passport,
-    authMiddleware: modules.middleware.authMiddleware({
-      logger: modules.logger,
-      utils: modules.util,
-      process: modules.process,
-      asyncHandler: modules.asyncHandler,
-    }),
   });
 }
 

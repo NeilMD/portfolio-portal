@@ -1,10 +1,4 @@
-module.exports = ({
-  logger,
-  cacheMiddleware,
-  controller,
-  authMiddleware,
-  router,
-}) => {
+module.exports = ({ logger, cacheMiddleware, controller, router }) => {
   // GET Retrieves the profile information (bio, skills, social links, etc.).
   router.get(
     "/profile/:userId",
@@ -29,11 +23,7 @@ module.exports = ({
   router.post("/profile/add", () => {});
 
   // POST Updates the user’s profile information (bio, skills, technologies, etc.).
-  router.post(
-    "/profile/edit/",
-    authMiddleware,
-    controller.UserController.profileEdit
-  );
+  router.post("/profile/edit/", controller.UserController.profileEdit);
 
   return router;
 };

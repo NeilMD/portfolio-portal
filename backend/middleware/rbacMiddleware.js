@@ -7,10 +7,13 @@ module.exports = ({ roles, logger, process, utils }) => {
 
     const authHeader = req.headers["authorization"];
     let token = "";
-    req.user = Object.create({});
-    req.user.role = "guest";
     let isAllowed = false;
     let decoded = "";
+
+    // Initialize user as guest by default
+    res.locals.user = res.locals.user || { role: "guest" };
+
+    // if token Exist
     if (authHeader) {
       token = authHeader && authHeader.split(" ")[1];
       logger.info(`token: ${token}`);
@@ -19,20 +22,19 @@ module.exports = ({ roles, logger, process, utils }) => {
           token,
           process.env.SECRET_ACCESS_TOKEN,
           (err, decoded) => {
-            logger.info("Invalid JWT Token");
             return decoded;
           }
         );
       });
-
+      // if decoded is properly set, all values will be defined.
       if (decoded.numCode == 0) {
-        req.user = Object.create({});
-        req.user.userId = decoded?.objResult?.userId;
-        req.user.role = decoded?.objResult?.role;
+        res.locals.user.userId = decoded?.objResult?.userId;
+        res.locals.user.role = decoded?.objResult?.role;
       }
     }
-    logger.info(`User Role: ${req.user.role}`);
-    if (decoded.numCode == 0 || req.user.role) {
+    logger.info(`User Role: ${res.locals.user.role}`);
+
+    if (decoded.numCode == 0 || res.locals.user.role) {
       const requestPath = req.path; // Requested path
       const requestMethod = req.method; // HTTP method (GET, POST, etc.)
 
@@ -51,7 +53,7 @@ module.exports = ({ roles, logger, process, utils }) => {
           // Check if the current user role is in the allowed roles for this method
           if (
             allowedRolesForMethod &&
-            allowedRolesForMethod?.includes(req.user.role)
+            allowedRolesForMethod?.includes(res.locals.user.role)
           ) {
             return true; // User is allowed
           }

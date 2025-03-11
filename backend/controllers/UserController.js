@@ -5,6 +5,7 @@ module.exports = ({ config, model, logger, util, asyncHandler }) => {
     logger.info("userController/profileEdit: START");
     let objResult = util.responseUtil();
 
+    logger.info(res.locals);
     logger.info("userController/profileEdit: END");
     return res.json(objResult);
   });
