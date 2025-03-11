@@ -13,18 +13,26 @@ module.exports = ({ roles, logger, process, utils }) => {
     let decoded = "";
     if (authHeader) {
       token = authHeader && authHeader.split(" ")[1];
-      logger.warn(`token: ${token}`);
+      logger.info(`token: ${token}`);
       decoded = await utils.tc(() => {
-        return jwt.verify(token, process.env.SECRET_ACCESS_TOKEN);
+        return jwt.verify(
+          token,
+          process.env.SECRET_ACCESS_TOKEN,
+          (err, decoded) => {
+            logger.info("Invalid JWT Token");
+            return decoded;
+          }
+        );
       });
 
       if (decoded.numCode == 0) {
         req.user = Object.create({});
-        req.user.userId = decoded.objResult.userId;
-        req.user.role = decoded.objResult.role;
+        req.user.userId = decoded?.objResult?.userId;
+        req.user.role = decoded?.objResult?.role;
       }
     }
-    if (decoded.numCode == 0) {
+    logger.info(`User Role: ${req.user.role}`);
+    if (decoded.numCode == 0 || req.user.role) {
       const requestPath = req.path; // Requested path
       const requestMethod = req.method; // HTTP method (GET, POST, etc.)
 
