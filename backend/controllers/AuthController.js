@@ -1,5 +1,4 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 module.exports = ({
   config,
@@ -9,6 +8,7 @@ module.exports = ({
   process,
   asyncHandler,
   passport,
+  jwt,
 }) => {
   let authController = {};
   let User = model.User;
@@ -37,15 +37,16 @@ module.exports = ({
       let result = await util.tc(() => {
         return newUser.save();
       });
-      console.dir(result.objResult);
-      // TODO Add json sign here
+
       objHeader.userId = result.objResult._id;
       objHeader.name = result.objResult.name;
       objHeader.role = result.objResult.role;
-      token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
-        expiresIn: "7d",
-      });
-      objResult.objData = token;
+      let accessToken = await jwt.generateAccessToken(objHeader);
+      let refreshToken = await jwt.generateRefreshToken(objHeader);
+
+      // Store refresh token in HttpOnly cookie
+      res.cookie("refreshToken", refreshToken, config.cookieOptions);
+      objResult.objData = accessToken;
       objResult.objSuccess = "User registered successfully!";
     }
 
@@ -60,7 +61,7 @@ module.exports = ({
     let objHeader = util.headerAuth();
 
     const { username, password } = req.body;
-    let token = "";
+    let accessToken = "";
     // Check if user exists
     const user = await User.findOne({ username }).select("+password");
 
@@ -83,15 +84,34 @@ module.exports = ({
         objHeader.userId = user._id;
         objHeader.name = user.name;
         objHeader.role = user.role;
-        token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
-          expiresIn: "7d",
-        });
-        objResult.objData = token;
+        accessToken = await jwt.generateAccessToken(objHeader);
+        let refreshToken = await jwt.generateRefreshToken(objHeader);
+        // Store refresh token in HttpOnly cookie
+        res.cookie("refreshToken", refreshToken, config.cookieOptions);
+        objResult.objData = accessToken;
         objResult.objSuccess = "User Login successfully!";
       }
     }
 
     logger.info("AuthController/login: END");
+    return res.status(201).json(objResult);
+  });
+
+  authController.refresh = asyncHandler(async (req, res) => {
+    logger.info("AuthController/refresh: START");
+
+    let objResult = util.responseUtil();
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const newAccessToken = await jwt.refreshAccessToken(refreshToken);
+      logger.info(newAccessToken);
+      objResult.objData = newAccessToken;
+    } else {
+      objResult.numCode = 0;
+      objResult.objData = "Refresh Token Error.";
+    }
+
+    logger.info("AuthController/refresh: END");
     return res.status(201).json(objResult);
   });
 
@@ -107,14 +127,17 @@ module.exports = ({
     let objHeader = util.headerAuth();
 
     const user = req.user;
-    let token = "";
+    let accessToken = "";
     objHeader.userId = user.userId;
     objHeader.name = user.name;
     objHeader.role = user.role;
-    token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
-      expiresIn: "7d",
-    });
-    objResult.objData = { token };
+    accessToken = await jwt.generateAccessToken(objHeader);
+    let refreshToken = await jwt.generateRefreshToken(objHeader);
+
+    // Store refresh token in HttpOnly cookie
+    res.cookie("refreshToken", refreshToken, config.cookieOptions);
+
+    objResult.objData = { accessToken };
     objResult.objSuccess = "User Login successfully!";
 
     logger.info("AuthController/login/google/callback: END");

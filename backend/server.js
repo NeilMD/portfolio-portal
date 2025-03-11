@@ -16,6 +16,7 @@ const requireDir = require("require-dir");
 const mongoose = require("mongoose");
 const asyncHandler = require("express-async-handler");
 const passport = require("passport");
+const cookieParser = require("cookie-parser");
 const GoogleStrategy = require("passport-google-oauth20");
 
 // Module Init
@@ -93,6 +94,12 @@ for (const file in controllerFiles) {
     process: modules.process,
     asyncHandler: modules.asyncHandler,
     passport: modules.passport,
+    jwt: modules.util.jwt({
+      process: modules.process,
+      logger: modules.logger,
+      utils: modules.util,
+      asyncHandler: modules.asyncHandler,
+    }),
   });
 }
 // Load Routes
@@ -117,6 +124,7 @@ logger.info("===========================");
 logger.info("App Init");
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 logger.info("Header Security Init");
 // Use Helmet for security headers
@@ -163,6 +171,12 @@ app.use(
     roles: modules.config.roles,
     process: modules.process,
     utils: modules.util,
+    jwt: modules.util.jwt({
+      logger: modules.logger,
+      process: modules.process,
+      utils: modules.util,
+      asyncHandler: modules.asyncHandler,
+    }),
   })
 );
 
@@ -176,6 +190,7 @@ app.use("/api/project", modules.route.project);
 
 // Serve static files (images, CSS, JS) with caching
 app.use(
+  // Build is the folder where the build files of the frontend(React), will be placed.
   express.static(path.join(__dirname, "build"), {
     setHeaders: (res, path) => {
       if (path.endsWith(".js") || path.endsWith(".css")) {

@@ -12,6 +12,12 @@ module.exports = [
     },
   },
   {
+    path: "/api/auth/refresh",
+    methods: {
+      POST: ["user"], // Only "user" can refresh access token
+    },
+  },
+  {
     path: "/api/auth/signup",
     methods: {
       POST: ["user", "guest"], // Both 'user' and 'guest' can POST to this route
@@ -76,6 +82,12 @@ module.exports = [
     path: "/api/project/add",
     methods: {
       POST: ["user"], // Only 'user' can POST to add new project
+    },
+  },
+  {
+    path: "/api/project/edit",
+    methods: {
+      POST: ["user"], // Only 'user' can POST to edit project
     },
   },
   {

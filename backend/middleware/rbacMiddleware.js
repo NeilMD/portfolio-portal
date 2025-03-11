@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = ({ roles, logger, process, utils }) => {
+module.exports = ({ roles, logger, utils, jwt }) => {
   return async (req, res, next) => {
     logger.info("rbacMiddleware: START");
     let objResult = utils.responseUtil();
@@ -17,24 +17,16 @@ module.exports = ({ roles, logger, process, utils }) => {
     if (authHeader) {
       token = authHeader && authHeader.split(" ")[1];
       logger.info(`token: ${token}`);
-      decoded = await utils.tc(() => {
-        return jwt.verify(
-          token,
-          process.env.SECRET_ACCESS_TOKEN,
-          (err, decoded) => {
-            return decoded;
-          }
-        );
-      });
+      decoded = await jwt.verifyToken(token);
       // if decoded is properly set, all values will be defined.
-      if (decoded.numCode == 0) {
-        res.locals.user.userId = decoded?.objResult?.userId;
-        res.locals.user.role = decoded?.objResult?.role;
+      if (decoded) {
+        res.locals.user.userId = decoded?.userId;
+        res.locals.user.role = decoded?.role;
       }
     }
     logger.info(`User Role: ${res.locals.user.role}`);
 
-    if (decoded.numCode == 0 || res.locals.user.role) {
+    if (decoded || res.locals.user.role) {
       const requestPath = req.path; // Requested path
       const requestMethod = req.method; // HTTP method (GET, POST, etc.)
 

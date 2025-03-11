@@ -23,8 +23,8 @@ module.exports = ({ controller, router, passport }) => {
   // POST Logs out the user and invalidates the session.
   router.post("/logout", controller.AuthController.login);
 
-  // POST Retrieves the currently authenticated user’s details.
-  router.post("/verify", () => {});
+  // POST Refresh access token.
+  router.post("/refresh", controller.AuthController.refresh);
 
   return router;
 };

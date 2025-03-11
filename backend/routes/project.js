@@ -33,6 +33,9 @@ module.exports = ({ cacheMiddleware, controller, router }) => {
   // POST Adds a new project (project description, tech stack, demo links, GitHub repository).
   router.post("/add", () => {});
 
+  // POST Edit a  project (project description, tech stack, demo links, GitHub repository).
+  router.post("/edit", () => {});
+
   // POST Adds media (images/videos) to a specific project.
   router.post("/media", () => {});
 
