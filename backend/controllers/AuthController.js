@@ -105,7 +105,6 @@ module.exports = ({
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
       const newAccessToken = await jwt.refreshAccessToken(refreshToken);
-      logger.info(newAccessToken);
       objResult.objData = newAccessToken;
     } else {
       objResult.numCode = 0;

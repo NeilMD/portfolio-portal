@@ -22,7 +22,6 @@ module.exports = ({ roles, logger, utils, jwt }) => {
         res.locals.user.role = decoded?.role;
       }
     }
-    logger.info(`User Role: ${res.locals.user.role}`);
 
     if (decoded || res.locals.user.role) {
       const requestPath = req.path; // Requested path
