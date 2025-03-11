@@ -111,7 +111,7 @@ module.exports = ({
     objHeader.userId = user.userId;
     objHeader.name = user.name;
     objHeader.role = user.role;
-    token = jwt.sign(objHeaderj, process.env.SECRET_ACCESS_TOKEN, {
+    token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
       expiresIn: "7d",
     });
     objResult.objData = { token };
@@ -131,12 +131,11 @@ module.exports = ({
     let resultUser = "",
       existingUser = "";
     // Try to find the user in database
-    existingUser = await util.tc(
-      async () =>
-        await User.findOne({
-          googleId: profile.id,
-        })
-    );
+    existingUser = await util.tc(() => {
+      return User.findOne({
+        googleId: profile.id,
+      });
+    });
 
     // If user doesn't exist, create a new one
     if (existingUser.objResult === 0 || !existingUser.objResult) {

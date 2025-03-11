@@ -149,6 +149,14 @@ passport.use(
   )
 );
 
+logger.info("URL Logging Init");
+app.use(
+  modules.middleware.urlLogging({
+    logger: modules.logger,
+  })
+);
+
+logger.info("RBAC Authentication Init");
 app.use(
   modules.middleware.rbacMiddleware({
     logger: modules.logger,
