@@ -96,10 +96,8 @@ module.exports = [
       GET: ["user", "guest"], // Both 'user' and 'guest' can GET specific project details
     },
   },
-
-  // Media routes
   {
-    path: "/media/*/*/*",
+    path: "/api/project/media/*/*/*",
     methods: {
       GET: ["user", "guest"], // Both 'user' and 'guest' can GET media files
     },

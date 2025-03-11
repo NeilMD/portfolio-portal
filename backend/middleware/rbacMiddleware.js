@@ -1,34 +1,30 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = ({ roles, logger, process, utils }) => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     logger.info("rbacMiddleware: START");
     let objResult = utils.responseUtil();
 
     const authHeader = req.headers["authorization"];
     let token = "";
-    let userRole = "guest";
+    req.user = Object.create({});
+    req.user.role = "guest";
     let isAllowed = false;
+    let decoded = "";
     if (authHeader) {
       token = authHeader && authHeader.split(" ")[1];
       logger.warn(`token: ${token}`);
-      const decoded = utils.tc(async () => {
-        await jwt.verify(
-          token,
-          process.env.SECRET_ACCESS_TOKEN,
-          (err, decoded) => {
-            return false;
-          }
-        );
+      decoded = await utils.tc(() => {
+        return jwt.verify(token, process.env.SECRET_ACCESS_TOKEN);
       });
 
-      if (decoded) {
+      if (decoded.numCode == 0) {
         req.user = Object.create({});
-        req.user.userId = decoded.userId;
-        req.user.role = decoded.role;
+        req.user.userId = decoded.objResult.userId;
+        req.user.role = decoded.objResult.role;
       }
     }
-    if (objResult.numCode == 0) {
+    if (decoded.numCode == 0) {
       const requestPath = req.path; // Requested path
       const requestMethod = req.method; // HTTP method (GET, POST, etc.)
 
@@ -47,7 +43,7 @@ module.exports = ({ roles, logger, process, utils }) => {
           // Check if the current user role is in the allowed roles for this method
           if (
             allowedRolesForMethod &&
-            allowedRolesForMethod.includes(userRole)
+            allowedRolesForMethod?.includes(req.user.role)
           ) {
             return true; // User is allowed
           }

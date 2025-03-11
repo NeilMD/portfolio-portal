@@ -23,7 +23,9 @@ module.exports = ({
     const newUser = new User({ username: username, password: hash });
 
     // Check if user already exists
-    const existingUser = await util.tc(() => User.findOne({ username }));
+    const existingUser = await util.tc(() => {
+      return User.findOne({ username });
+    });
     if (existingUser.objResult) {
       objResult.numCode = 1;
       objResult.objError =
@@ -32,11 +34,14 @@ module.exports = ({
 
     //Save New User
     if (objResult.numCode === 0) {
-      let result = await util.tc(() => newUser.save());
+      let result = await util.tc(() => {
+        return newUser.save();
+      });
+      console.dir(result.objResult);
       // TODO Add json sign here
-      objHeader.userId = result._id;
-      objHeader.name = result.name;
-      objHeader.role = result.role;
+      objHeader.userId = result.objResult._id;
+      objHeader.name = result.objResult.name;
+      objHeader.role = result.objResult.role;
       token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
         expiresIn: "7d",
       });

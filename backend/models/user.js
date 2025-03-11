@@ -26,8 +26,8 @@ module.exports = (logger, mongoose) => {
     },
     role: {
       type: String,
-      enum: ["user", "guest"],
-      default: "guest",
+      enum: ["user", "admin"],
+      default: "user",
     },
   });
 
