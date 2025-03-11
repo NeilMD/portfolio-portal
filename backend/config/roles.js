@@ -131,7 +131,7 @@ module.exports = [
   {
     path: "/api/user/profile/add",
     methods: {
-      POST: ["user", "guest"], // Both 'user' and 'guest' can POST to create a new user profile
+      POST: ["user"], // Only 'user' can POST to create a new user profile
     },
   },
   {
