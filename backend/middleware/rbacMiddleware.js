@@ -1,5 +1,3 @@
-const jwt = require("jsonwebtoken");
-
 module.exports = ({ roles, logger, utils, jwt }) => {
   return async (req, res, next) => {
     logger.info("rbacMiddleware: START");

@@ -1,5 +1,3 @@
-const { session } = require("passport");
-
 module.exports = ({ controller, router, passport }) => {
   // POST Registers a new user.
   router.post("/signup", controller.AuthController.signup);

@@ -58,7 +58,7 @@ const middlewareFiles = requireDir("./middleware");
 modules.middleware = Object.create({});
 logger.info("=====Load Middleware=====");
 for (const file in middlewareFiles) {
-  logger.info(`Dummy Middleware File: ${file}`);
+  logger.info(`Middleware File: ${file}`);
   modules.middleware[file] = middlewareFiles[file];
 }
 
