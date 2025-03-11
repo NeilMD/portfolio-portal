@@ -1,48 +1,133 @@
-module.exports = {
-  user: [
-    // Auth
-    { path: "/api/auth/logout", methods: ["POST"] }, // User can log out
+module.exports = [
+  {
+    path: "/api/auth/logout",
+    methods: {
+      POST: ["user"], // Only 'user' can POST to this route
+    },
+  },
+  {
+    path: "/api/auth/login",
+    methods: {
+      POST: ["user", "guest"], // Both 'user' and 'guest' can POST to this route
+    },
+  },
+  {
+    path: "/api/auth/signup",
+    methods: {
+      POST: ["user", "guest"], // Both 'user' and 'guest' can POST to this route
+    },
+  },
+  {
+    path: "/api/auth/login/google",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET this route
+    },
+  },
+  {
+    path: "/api/auth/login/google/callback",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET this route
+    },
+  },
 
-    // Blog
-    { path: "/api/blog/user/*", methods: ["GET"] }, // Retrieves all blog posts by a specific user
-    { path: "/api/blog/add", methods: ["POST"] }, // Creates a new blog post (title, content, tags)
+  // Blog routes
+  {
+    path: "/api/blog/user/*",
+    methods: {
+      GET: ["user"], // Only 'user' can GET blog user routes
+    },
+  },
+  {
+    path: "/api/blog/add",
+    methods: {
+      POST: ["user"], // Only 'user' can POST new blog posts
+    },
+  },
+  {
+    path: "/api/blog",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET all blog posts
+    },
+  },
+  {
+    path: "/api/blog/*/*",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET specific blog post details
+    },
+  },
 
-    // Contact
-    { path: "/api/contact/messages", methods: ["GET", "POST"] }, // Retrieves contact messages
+  // Contact routes
+  {
+    path: "/api/contact/messages",
+    methods: {
+      GET: ["user"], // Only 'user' can GET contact messages
+      POST: ["user", "guest"], // Both 'user' and 'guest' can POST messages
+    },
+  },
 
-    // Project
-    { path: "/api/project/media", methods: ["POST"] }, // Adds media (images/videos) to a specific project.
-    { path: "/api/project/add", methods: ["POST"] }, // Adds a new project (project description, tech stack, demo links, GitHub repository).
-    { path: "/api/project/user/*", methods: ["GET"] }, // GET Fetches all projects of a specific user.
-    { path: "/api/project/user/*", methods: ["GET"] }, // GET Fetches all projects of a specific user.
+  // Project routes
+  {
+    path: "/api/project/media",
+    methods: {
+      POST: ["user"], // Only 'user' can POST to project media
+    },
+  },
+  {
+    path: "/api/project/add",
+    methods: {
+      POST: ["user"], // Only 'user' can POST to add new project
+    },
+  },
+  {
+    path: "/api/project/user/*",
+    methods: {
+      GET: ["user"], // Only 'user' can GET their own projects
+    },
+  },
+  {
+    path: "/api/project",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET all projects
+    },
+  },
+  {
+    path: "/api/project/*/*",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET specific project details
+    },
+  },
 
-    //User
-    { path: "/api/user/profile/*", methods: ["GET"] }, // Retrieve specific user profile info
-    { path: "/api/user/profile/edit", methods: ["POST"] }, // POST Updates the user’s profile information (bio, skills, technologies, etc.).
-  ],
+  // Media routes
+  {
+    path: "/media/*/*/*",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET media files
+    },
+  },
 
-  guest: [
-    // Auth
-    { path: "/api/auth/login", methods: ["POST"] }, // Guest login
-    { path: "/api/auth/signup", methods: ["POST"] }, // Guest sign-up
-    { path: "/api/auth/login/google", methods: ["GET"] }, // Google login URL
-    { path: "/api/auth/login/google/callback", methods: ["GET"] }, // Google login callback
-
-    // User
-    { path: "/api/user", methods: ["GET"] }, // Retrieve general user profile info
-    { path: "/api/user/profile/*", methods: ["GET"] }, // Retrieve specific user profile info
-    { path: "/api/user/profile/add", methods: ["POST"] }, // POST Creates the user’s profile information (bio, skills, technologies, etc.).
-
-    // Project
-    { path: "/api/project", methods: ["GET"] }, // Retrieve all projects
-    { path: "/api/project/*/*", methods: ["GET"] }, // Retrieve detailed information about a specific project
-    { path: "/media/*/*/*", methods: ["GET"] }, // GET Retrieves media (images/videos) to a specific project.
-
-    // Blog
-    { path: "/api/blog", methods: ["GET"] }, // Retrieve all blog posts
-    { path: "/api/blog/*/*", methods: ["GET"] }, // Retrieve detailed information about a specific blog post
-
-    // Contact
-    { path: "/api/contact/messages", methods: ["POST"] }, // Submits a new contact message or inquiry (name, email, message)
-  ],
-};
+  // User routes
+  {
+    path: "/api/user",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET user info
+    },
+  },
+  {
+    path: "/api/user/profile/*",
+    methods: {
+      GET: ["user", "guest"], // Both 'user' and 'guest' can GET specific user profiles
+    },
+  },
+  {
+    path: "/api/user/profile/add",
+    methods: {
+      POST: ["user", "guest"], // Both 'user' and 'guest' can POST to create a new user profile
+    },
+  },
+  {
+    path: "/api/user/profile/edit",
+    methods: {
+      POST: ["user"], // Only 'user' can POST to edit their profile
+    },
+  },
+];

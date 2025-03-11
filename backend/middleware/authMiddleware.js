@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = ({ utils, logger, process }) => {
+module.exports = ({ utils, logger, process, asyncHandler }) => {
   return (req, res, next) => {
     logger.info("authMiddleware: START");
 
@@ -11,10 +11,26 @@ module.exports = ({ utils, logger, process }) => {
       objResult.numCode = 1;
       objResult.objError = "Please Login.";
     }
-    // TODO Fix this part when verify fails
+
     if (objResult.numCode === 0) {
-      const decoded = jwt.verify(token, process.env.SECRET_ACCESS_TOKEN);
-      req.userId = decoded.userId;
+      const decoded = utils.tc(async () => {
+        await jwt.verify(
+          token,
+          process.env.SECRET_ACCESS_TOKEN,
+          (err, decoded) => {
+            logger.warn("Entered");
+            return false;
+          }
+        );
+      });
+
+      if (decoded) {
+        req.user.userId = decoded.userId;
+        req.user.role = decoded.role;
+      } else {
+        objResult.numCode = 1;
+        objResult.objError = "Invalid JWT Token";
+      }
     }
 
     logger.info("authMiddleware: END");

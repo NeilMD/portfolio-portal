@@ -36,11 +36,11 @@ logger.info("=====FILE LOADING BEGIN====");
 
 // Load Config
 const configFiles = requireDir("./config");
-modules.dummyData = Object.create({});
+modules.config = Object.create({});
 logger.info("=====Load Config=====");
 for (const file in configFiles) {
   logger.info(`Config File: ${file}`);
-  modules[file] = configFiles[file];
+  modules.config[file] = configFiles[file];
 }
 
 // Load Dummy Data
@@ -86,7 +86,7 @@ logger.info("=====Load Controller=====");
 for (const file in controllerFiles) {
   logger.info(`Controller File: ${file}`);
   modules.controller[file] = controllerFiles[file]({
-    config: modules.config,
+    config: modules.config.config,
     model: modules.model,
     logger: modules.logger,
     util: modules.util,
@@ -111,6 +111,7 @@ for (const file in routeFiles) {
       logger: modules.logger,
       utils: modules.util,
       process: modules.process,
+      asyncHandler: modules.asyncHandler,
     }),
   });
 }
@@ -154,6 +155,15 @@ passport.use(
   )
 );
 
+app.use(
+  modules.middleware.rbacMiddleware({
+    logger: modules.logger,
+    roles: modules.config.roles,
+    process: modules.process,
+    utils: modules.util,
+  })
+);
+
 logger.info("Routes Init");
 //ROUTES
 app.use("/api/user", modules.route.user);
@@ -175,7 +185,6 @@ app.use(
     },
   })
 );
-
 app.use(modules.middleware.errorMiddleware({ logger: modules.logger }));
 
 // Port configuration

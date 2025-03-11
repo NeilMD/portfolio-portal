@@ -17,6 +17,7 @@ module.exports = ({
     logger.info("AuthController/signup: START");
 
     let objResult = util.responseUtil();
+    let objHeader = util.headerAuth();
     const { username = "", password = "" } = req.body;
     const hash = bcrypt.hashSync(password, config.saltRounds);
     const newUser = new User({ username: username, password: hash });
@@ -32,6 +33,14 @@ module.exports = ({
     //Save New User
     if (objResult.numCode === 0) {
       let result = await util.tc(() => newUser.save());
+      // TODO Add json sign here
+      objHeader.userId = result._id;
+      objHeader.name = result.name;
+      objHeader.role = result.role;
+      token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
+        expiresIn: "7d",
+      });
+      objResult.objData = token;
       objResult.objSuccess = "User registered successfully!";
     }
 
@@ -41,7 +50,10 @@ module.exports = ({
 
   authController.login = asyncHandler(async (req, res) => {
     logger.info("AuthController/login: START");
+
     let objResult = util.responseUtil();
+    let objHeader = util.headerAuth();
+
     const { username, password } = req.body;
     let token = "";
     // Check if user exists
@@ -63,13 +75,12 @@ module.exports = ({
         objResult.objError =
           "Invalid email or password. Please try again with the correct credentials.";
       } else {
-        token = jwt.sign(
-          { userId: user._id },
-          process.env.SECRET_ACCESS_TOKEN,
-          {
-            expiresIn: "7d",
-          }
-        );
+        objHeader.userId = user._id;
+        objHeader.name = user.name;
+        objHeader.role = user.role;
+        token = jwt.sign(objHeader, process.env.SECRET_ACCESS_TOKEN, {
+          expiresIn: "7d",
+        });
         objResult.objData = token;
         objResult.objSuccess = "User Login successfully!";
       }
@@ -88,16 +99,16 @@ module.exports = ({
     logger.info("AuthController/login/google/callback: START");
 
     let objResult = util.responseUtil();
+    let objHeader = util.headerAuth();
 
     const user = req.user;
     let token = "";
-    token = jwt.sign(
-      { userId: user?.userId, googleId: user?.googleId, name: user?.name },
-      process.env.SECRET_ACCESS_TOKEN,
-      {
-        expiresIn: "7d",
-      }
-    );
+    objHeader.userId = user.userId;
+    objHeader.name = user.name;
+    objHeader.role = user.role;
+    token = jwt.sign(objHeaderj, process.env.SECRET_ACCESS_TOKEN, {
+      expiresIn: "7d",
+    });
     objResult.objData = { token };
     objResult.objSuccess = "User Login successfully!";
 
@@ -128,18 +139,21 @@ module.exports = ({
         googleId: profile?.id,
         name: profile?.displayName,
         email: profile?.emails?.value,
+        role: "user",
       });
       const tempUser = await newUser.save();
       resultUser = {
         userId: tempUser._id,
         googleId: tempUser.googleId,
         name: profile.displayName,
+        role: tempUser.role,
       };
     } else {
       resultUser = {
         userId: existingUser.objResult._id,
         googleId: existingUser.objResult.googleId,
         name: profile.displayName,
+        role: "user",
       };
     }
     logger.info("AuthController/googleMain: END");

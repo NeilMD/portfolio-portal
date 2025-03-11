@@ -24,6 +24,11 @@ module.exports = (logger, mongoose) => {
       required: false,
       unique: true,
     },
+    role: {
+      type: String,
+      enum: ["user", "guest"],
+      default: "guest",
+    },
   });
 
   return mongoose.model("User", UserSchema);
