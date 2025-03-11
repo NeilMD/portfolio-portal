@@ -25,7 +25,6 @@ module.exports = ({ logger, rateLimit, utils }) => {
   return (req, res, next) => {
     logger.info("rateLimiterMiddleware: START");
 
-    // Apply the rate limiter here
     accountLimiter(req, res, next);
 
     // Continue with the next middleware or route handler

@@ -23,33 +23,31 @@ module.exports = ({ roles, logger, utils, jwt }) => {
       }
     }
 
-    if (decoded || res.locals.user.role) {
-      const requestPath = req.path; // Requested path
-      const requestMethod = req.method; // HTTP method (GET, POST, etc.)
+    const requestPath = req.path; // Requested path
+    const requestMethod = req.method; // HTTP method (GET, POST, etc.)
 
-      // Check if the route and method are allowed
-      isAllowed = roles.some((route) => {
-        // Create a regex for the route path
-        const routeRegex = new RegExp(
-          "^" + route.path.replace(/\*/g, "[^/]+") + "$"
-        );
+    // Check if the route and method are allowed
+    isAllowed = roles.some((route) => {
+      // Create a regex for the route path
+      const routeRegex = new RegExp(
+        "^" + route.path.replace(/\*/g, "[^/]+") + "$"
+      );
 
-        // Check if the path matches the current requestPath
-        if (routeRegex.test(requestPath)) {
-          // Check if the method is in the allowed methods for this route
-          const allowedRolesForMethod = route.methods[requestMethod];
+      // Check if the path matches the current requestPath
+      if (routeRegex.test(requestPath)) {
+        // Check if the method is in the allowed methods for this route
+        const allowedRolesForMethod = route.methods[requestMethod];
 
-          // Check if the current user role is in the allowed roles for this method
-          if (
-            allowedRolesForMethod &&
-            allowedRolesForMethod?.includes(res.locals.user.role)
-          ) {
-            return true; // User is allowed
-          }
+        // Check if the current user role is in the allowed roles for this method
+        if (
+          allowedRolesForMethod &&
+          allowedRolesForMethod?.includes(res.locals.user.role)
+        ) {
+          return true; // User is allowed
         }
-        return false; // User is not allowed
-      });
-    }
+      }
+      return false; // User is not allowed
+    });
 
     logger.info("rbacMiddleware: END");
 
