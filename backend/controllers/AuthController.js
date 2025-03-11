@@ -63,7 +63,7 @@ module.exports = ({
     const { username, password } = req.body;
     let accessToken = "";
     // Check if user exists
-    const user = await User.findOne({ username }).select("+password");
+    const user = await User.findOne({ username: username }).select("+password");
 
     if (!user) {
       objResult.numCode = 1;
@@ -75,6 +75,7 @@ module.exports = ({
       // if user exists
       // validate password
       const isPasswordValid = await bcrypt.compare(password, user.password);
+
       // if not valid, return unathorized response
       if (!isPasswordValid) {
         objResult.numCode = 1;
@@ -112,6 +113,24 @@ module.exports = ({
     }
 
     logger.info("AuthController/refresh: END");
+    return res.status(201).json(objResult);
+  });
+
+  authController.logout = asyncHandler(async (req, res) => {
+    logger.info("AuthController/logout: START");
+
+    let objResult = util.responseUtil();
+
+    // Clear the refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: config.cookieOptions.secure,
+      sameSite: config.cookieOptions.sameSite,
+    });
+
+    objResult.objSuccess = "User logged out successfully!";
+
+    logger.info("AuthController/logout: END");
     return res.status(201).json(objResult);
   });
 

@@ -1,9 +1,9 @@
-module.exports = ({ controller, router, passport }) => {
+module.exports = ({ controller, rateLimitMiddleware, router, passport }) => {
   // POST Registers a new user.
   router.post("/signup", controller.AuthController.signup);
 
   // POST Logs in an existing user and provides an authentication token.
-  router.post("/login", controller.AuthController.login);
+  router.post("/login", rateLimitMiddleware, controller.AuthController.login);
 
   // GET Login using google.
   router.get("/login/google", controller.AuthController.loginGoogle);

@@ -18,6 +18,7 @@ const asyncHandler = require("express-async-handler");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
 const GoogleStrategy = require("passport-google-oauth20");
+const rateLimit = require("express-rate-limit");
 
 // Module Init
 const modules = Object.create({});
@@ -27,6 +28,7 @@ modules.mongoose = mongoose;
 modules.process = process;
 modules.asyncHandler = asyncHandler;
 modules.passport = passport;
+modules.rateLimit = rateLimit;
 
 // DB Connect
 require("./db")(modules.logger, modules.mongoose, modules.process);
@@ -114,6 +116,11 @@ for (const file in routeFiles) {
     controller: modules.controller,
     router: modules.express_router,
     passport: modules.passport,
+    rateLimitMiddleware: modules.middleware.rateLimitMiddleware({
+      rateLimit: modules.rateLimit,
+      logger: modules.logger,
+      utils: modules.util,
+    }),
   });
 }
 
