@@ -14,16 +14,7 @@ module.exports = (logger, mongoose) => {
       type: String,
       required: false,
     },
-    googleId: {
-      type: String,
-      required: false,
-      unique: true,
-    },
-    email: {
-      type: String,
-      required: false,
-      unique: false,
-    },
+
     role: {
       type: String,
       enum: ["user", "admin"],
