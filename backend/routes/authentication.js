@@ -19,7 +19,7 @@ module.exports = ({ controller, rateLimitMiddleware, router, passport }) => {
   );
 
   // POST Logs out the user and invalidates the session.
-  router.post("/logout", controller.AuthController.login);
+  router.post("/logout", controller.AuthController.logout);
 
   // POST Refresh access token.
   router.post("/refresh", controller.AuthController.refresh);
