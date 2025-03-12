@@ -162,48 +162,45 @@ module.exports = ({
     return res.status(201).json(objResult);
   });
 
-  authController.googleMain = async (
-    accessToken,
-    refreshToken,
-    profile,
-    done
-  ) => {
-    logger.info("AuthController/googleMain: START");
-    let resultUser = "",
-      existingUser = "";
-    // Try to find the user in database
-    existingUser = await util.tc(() => {
-      return User.findOne({
-        googleId: profile.id,
+  authController.googleMain = asyncHandler(
+    async (accessToken, refreshToken, profile, done) => {
+      logger.info("AuthController/googleMain: START");
+      let resultUser = "",
+        existingUser = "";
+      // Try to find the user in database
+      existingUser = await util.tc(() => {
+        return User.findOne({
+          googleId: profile.id,
+        });
       });
-    });
 
-    // If user doesn't exist, create a new one
-    if (existingUser.objResult === 0 || !existingUser.objResult) {
-      const newUser = new User({
-        googleId: profile?.id,
-        name: profile?.displayName,
-        email: profile?.emails?.value,
-        role: "user",
-      });
-      const tempUser = await newUser.save();
-      resultUser = {
-        userId: tempUser._id,
-        googleId: tempUser.googleId,
-        name: profile.displayName,
-        role: tempUser.role,
-      };
-    } else {
-      resultUser = {
-        userId: existingUser.objResult._id,
-        googleId: existingUser.objResult.googleId,
-        name: profile.displayName,
-        role: "user",
-      };
+      // If user doesn't exist, create a new one
+      if (existingUser.objResult === 0 || !existingUser.objResult) {
+        const newUser = new User({
+          googleId: profile?.id,
+          name: profile?.displayName,
+          email: profile?.id,
+          role: "user",
+        });
+        const tempUser = await newUser.save();
+        resultUser = {
+          userId: tempUser._id,
+          googleId: tempUser.googleId,
+          name: profile.displayName,
+          role: tempUser.role,
+        };
+      } else {
+        resultUser = {
+          userId: existingUser.objResult._id,
+          googleId: existingUser.objResult.googleId,
+          name: profile.displayName,
+          role: "user",
+        };
+      }
+      logger.info("AuthController/googleMain: END");
+      return done(null, resultUser);
     }
-    logger.info("AuthController/googleMain: END");
-    return done(null, resultUser);
-  };
+  );
   // ================================================
   // --------------END OF EXTERNAL APIs--------------
   // ================================================

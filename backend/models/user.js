@@ -2,7 +2,7 @@ module.exports = (logger, mongoose) => {
   const UserSchema = new mongoose.Schema({
     username: {
       type: String,
-      required: false,
+      required: true,
       unique: true,
     },
     password: {
@@ -22,7 +22,7 @@ module.exports = (logger, mongoose) => {
     email: {
       type: String,
       required: false,
-      unique: true,
+      unique: false,
     },
     role: {
       type: String,
