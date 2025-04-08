@@ -54,7 +54,7 @@ export function SignupForm({ className, ...props }) {
       password: "",
     },
   });
-  // 2. Define a submit handler.
+
   const handleSubmit = async (value) => {
     console.log(value);
     console.log("signup");

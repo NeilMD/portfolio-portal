@@ -21,8 +21,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useNavigate } from "react-router";
+import { useAuth } from "@/context/AuthProvider"; // Adjust the path if needed
+import { tc } from "@/lib/tc";
 
 export function LoginForm({ className, ...props }) {
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Use the login function from the AuthContext
   const formSchema = z.object({
     username: z
       .string()
@@ -50,12 +55,14 @@ export function LoginForm({ className, ...props }) {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  const handleSubmit = async (value) => {
+    console.log(value);
+    console.log("login");
+    const [data, error] = await tc(() => login(value)); // Use login function to authenticate
+    if (data.success) {
+      navigate("/home");
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -67,7 +74,7 @@ export function LoginForm({ className, ...props }) {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-3">
                   <FormField
@@ -93,7 +100,7 @@ export function LoginForm({ className, ...props }) {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input type="password" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -85,8 +85,10 @@ const AuthProvider = ({ children }) => {
     );
     if (error) {
       setToken(null);
+      return { success: false, error };
     } else {
       setToken(response.data.objData); // Save token from response
+      return { success: true, error };
     }
   };
 
