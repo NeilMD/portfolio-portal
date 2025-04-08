@@ -22,10 +22,17 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router";
 
 export function NavUser({ user }) {
+  const navigate = useNavigate();
   const { isMobile } = useSidebar();
-
+  const handleAccount = () => {
+    navigate("/profile/edit");
+  };
+  const handleLogout = () => {
+    navigate("/");
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -70,13 +77,21 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  handleAccount();
+                }}
+              >
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                handleLogout();
+              }}
+            >
               <IconLogout />
               Log out
             </DropdownMenuItem>
