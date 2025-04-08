@@ -9,8 +9,60 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useAuth } from "@/context/AuthProvider"; // Adjust the path if needed
+import { tc } from "@/lib/tc";
+import { useNavigate } from "react-router";
 
 export function SignupForm({ className, ...props }) {
+  const navigate = useNavigate();
+  const { signup } = useAuth(); // Use the login function from the AuthContext
+  const formSchema = z.object({
+    username: z
+      .string()
+      .email()
+      .min(2, {
+        message: "Username must be at least 2 characters.",
+      })
+      .nonempty({
+        message: "Username is required.",
+      }),
+    password: z
+      .string()
+      .min(8, {
+        message: "Password must be at least 8 characters.",
+      })
+      .nonempty({
+        message: "Password is required.",
+      }),
+  });
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+  // 2. Define a submit handler.
+  const handleSubmit = async (value) => {
+    console.log(value);
+    console.log("signup");
+    const [data, error] = await tc(() => signup(value)); // Use login function to authenticate
+    if (data.success) {
+      navigate("/home");
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -19,39 +71,57 @@ export function SignupForm({ className, ...props }) {
           <CardDescription>Create a new account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-3">
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <Input id="password" type="password" required />
+                <div className="grid gap-3">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Button type="submit" className="w-full">
+                    Create an account
+                  </Button>
+                  <Button variant="outline" className="w-full">
+                    Sign up with Google
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Create an account
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Sign up with Google
-                </Button>
+              <div className="mt-4 text-center text-sm">
+                Already have an account?{" "}
+                <a href="#" className="underline underline-offset-4">
+                  Login
+                </a>
               </div>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Login
-              </a>
-            </div>
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

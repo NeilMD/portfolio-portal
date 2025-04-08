@@ -27,7 +27,7 @@ import { Link } from "react-router";
 const Navbar = ({
   logo = {
     url: "/",
-    src: "https://shadcnblocks.com/images/block/logos/shadcnblockscom-icon.svg",
+    src: "",
     alt: "logo",
     title: "Shadcnblocks.com",
   },

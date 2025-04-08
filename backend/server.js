@@ -19,6 +19,7 @@ const passport = require("passport");
 const cookieParser = require("cookie-parser");
 const GoogleStrategy = require("passport-google-oauth20");
 const rateLimit = require("express-rate-limit");
+let cors = require("cors");
 
 // Module Init
 const modules = Object.create({});
@@ -132,6 +133,12 @@ logger.info("App Init");
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your React frontend URL
+    credentials: true, // if you're using cookies or authorization headers
+  })
+);
 
 logger.info("Header Security Init");
 // Use Helmet for security headers
