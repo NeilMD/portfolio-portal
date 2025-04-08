@@ -107,7 +107,7 @@ module.exports = ({
       const newAccessToken = await jwt.refreshAccessToken(refreshToken);
       objResult.objData = newAccessToken;
     } else {
-      objResult.numCode = 0;
+      objResult.numCode = 1;
       objResult.objData = "Refresh Token Error.";
     }
 

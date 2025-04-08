@@ -20,16 +20,18 @@ export const useAuth = () => {
 
 const AuthProvider = ({ children }) => {
   const [token, setToken] = useState();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("INstantiate AuthProvider");
     const fetchMe = async () => {
-      const [response, error] = await tc(() => api.get("/api/auth/refresh"));
-      if (error) {
+      const [response, error] = await tc(() => api.post("/api/auth/refresh"));
+      console.log(response);
+      if (response.data.numCode == 1) {
         setToken(null);
       } else {
         setToken(response.data.objData);
       }
+      setLoading(false); // Finish loading after token check
     };
 
     fetchMe();
@@ -92,7 +94,8 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const [response, error] = await tc(() => api.post("/api/auth/logout"));
     setToken(null);
   };
 
@@ -111,7 +114,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, signup }}>
+    <AuthContext.Provider value={{ token, login, logout, signup, loading }}>
       {children}
     </AuthContext.Provider>
   );

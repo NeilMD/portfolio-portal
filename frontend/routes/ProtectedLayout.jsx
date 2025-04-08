@@ -2,7 +2,11 @@ import { Outlet, Navigate } from "react-router";
 import { useAuth } from "@/context/AuthProvider";
 
 const ProtectedLayout = () => {
-  const { token } = useAuth(); // Ensure that `useAuth` returns the correct context value
+  const { token, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // or a fancy spinner
+  }
   console.log("Current Token: ", token); // Check if token is properly fetched
   if (!token) {
     return <Navigate to="/login" replace />; // If no token, redirect to login page

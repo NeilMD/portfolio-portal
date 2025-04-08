@@ -27,7 +27,7 @@ import { tc } from "@/lib/tc";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use the login function from the AuthContext
+  const { login } = useAuth();
   const formSchema = z.object({
     username: z
       .string()

@@ -23,14 +23,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router";
+import { useAuth } from "@/context/AuthProvider"; // Adjust the path if needed
+import { tc } from "@/lib/tc";
 
 export function NavUser({ user }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const { isMobile } = useSidebar();
   const handleAccount = () => {
     navigate("/profile/edit");
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const [response, erorr] = await tc(() => logout());
     navigate("/");
   };
   return (
