@@ -40,7 +40,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/home",
       icon: IconDashboard,
     },
 
@@ -48,11 +48,6 @@ const data = {
       title: "Projects",
       url: "#",
       icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
     },
   ],
   navClouds: [
@@ -124,7 +119,9 @@ export function AppSidebar({ ...props }) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">
+                  Portfolio Portal
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
