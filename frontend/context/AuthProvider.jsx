@@ -24,7 +24,7 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     console.log("INstantiate AuthProvider");
     const fetchMe = async () => {
-      const [response, error] = await tc(() => api.get("/api/auth/login"));
+      const [response, error] = await tc(() => api.get("/api/auth/refresh"));
       if (error) {
         setToken(null);
       } else {

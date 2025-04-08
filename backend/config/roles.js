@@ -14,7 +14,7 @@ module.exports = [
   {
     path: "/api/auth/refresh",
     methods: {
-      POST: ["user"], // Only "user" can refresh access token
+      POST: ["user", "guest"], // Only "user" can refresh access token
     },
   },
   {
