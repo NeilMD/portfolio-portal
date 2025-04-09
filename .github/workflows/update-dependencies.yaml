@@ -27,11 +27,9 @@ jobs:
           node-version: "22.x"
           cache: "pnpm"
 
-      # Install pnpm
+      # Install pnpm explicitly
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: "10" # Specify pnpm version you want to use
+        run: npm install -g pnpm@8 # Use a specific version of pnpm
 
       # ==========================
       # Backend Dependencies
