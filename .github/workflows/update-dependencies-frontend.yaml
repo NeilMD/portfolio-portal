@@ -1,0 +1,53 @@
+name: Update Frontend Dependencies
+
+on:
+  schedule:
+    - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-frontend-deps:
+    name: Update Frontend Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+
+      # Install pnpm globally
+      - name: Install pnpm globally
+        run: npm install -g pnpm
+
+      - name: Install Frontend Dependencies
+        run: pnpm install
+        working-directory: ./frontend
+
+      - name: Fix Frontend Vulnerabilities
+        run: pnpm audit fix || true
+        working-directory: ./frontend
+
+      - name: Create Pull Request for Frontend
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update frontend dependencies"
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: chore/update-frontend-deps
+          base: main
+          delete-branch: true
+          title: "chore: Update Frontend Dependencies"
+          body: |
+            Automated dependency update for the `frontend/` using **pnpm** and `pnpm audit fix`.
