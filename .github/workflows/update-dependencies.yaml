@@ -21,13 +21,12 @@ jobs:
           ref: develop
 
       # Set up Node.js
-      - name: Set up Node.js
+      - name: Set up Node.js for both backend and frontend
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
 
-      # Install pnpm explicitly
-      - name: Install pnpm
+        # Install pnpm explicitlya
         run: npm install -g pnpm # Use a specific version of pnpm
 
       # ==========================
