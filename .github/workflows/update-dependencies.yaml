@@ -25,7 +25,8 @@ jobs:
           node-version: "22.x"
           cache: "pnpm"
 
-      - name: Install pnpm using npm
+      # Install pnpm globally using npm (Ensure pnpm is available in PATH)
+      - name: Install pnpm globally
         run: npm install -g pnpm
 
       # ==========================
