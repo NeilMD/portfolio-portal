@@ -3,78 +3,67 @@ name: Update Dependencies
 on:
   schedule:
     - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
-  workflow_dispatch: # Trigger manually from GitHub UI
+  workflow_dispatch:
 
 jobs:
   update-deps:
-    name: Update Dependencies
+    name: Update Backend & Frontend Dependencies
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Permission to push to the repository
-      pull-requests: write # Permission to create pull requests
+      contents: write
+      pull-requests: write
 
     steps:
-      # Step 1: Checkout the develop branch (or the branch you want to update dependencies on)
       - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
-          ref: develop # Change this to your target branch (main, master, etc.)
+          ref: develop
 
-      # Step 3: Install pnpm in the Backend
-      - name: Install pnpm in Backend
-        run: npm install -g pnpm
-
-      # Step 4: Install Backend Dependencies (using pnpm-lock.yaml in backend)
-      - name: Install Backend Dependencies
-        run: |
-          cd ./backend  # Change directory to backend
-          pnpm install
-
-      # Step 5: Fix Backend Vulnerabilities
-      - name: Fix Backend Vulnerabilities
-        run: |
-          cd ./backend  # Change directory to backend
-          pnpm audit fix || true  # Automatically fix vulnerabilities (if any)
-
-      # Step 6: Set up Node.js for Frontend (with pnpm cache)
-      - name: Set up Node.js for Frontend
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Specify Node.js version for the frontend
-          cache: "pnpm" # Enable caching for pnpm
+          node-version: 20
+          cache: "pnpm"
 
-      # Step 7: Install pnpm in the Frontend
-      - name: Install pnpm in Frontend
-        run: npm install -g pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm@8
 
-      # Step 8: Install Frontend Dependencies (using pnpm-lock.yaml in frontend)
-      - name: Install Frontend Dependencies
+      # ==========================
+      # Update Backend
+      # ==========================
+      - name: Install backend dependencies
         run: |
-          cd ./frontend  # Change directory to frontend
+          cd backend
           pnpm install
+          pnpm audit fix || true
 
-      # Step 9: Fix Frontend Vulnerabilities
-      - name: Fix Frontend Vulnerabilities
+      # ==========================
+      # Update Frontend
+      # ==========================
+      - name: Install frontend dependencies
         run: |
-          cd ./frontend  # Change directory to frontend
-          pnpm audit fix || true  # Automatically fix vulnerabilities (if any)
+          cd frontend
+          pnpm install
+          pnpm audit fix || true
 
-      # Step 10: Create Pull Request
+      # ==========================
+      # Create Pull Request
+      # ==========================
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update frontend/backend dependencies"
+          commit-message: "chore: update dependencies and fix vulnerabilities"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps-main
-          base: main
+          branch: chore/update-deps
+          base: develop
           delete-branch: true
           title: "chore: Update Dependencies"
           body: |
-            Automated dependency update for:
+            ✅ This automated PR updates dependencies using `pnpm install` and `pnpm audit fix` in:
             - backend/
             - frontend/
 
-            Using **pnpm** and `pnpm audit fix`.
+            Please review and merge if everything looks good.
