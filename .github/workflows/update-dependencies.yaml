@@ -15,12 +15,12 @@ jobs:
 
     steps:
       # Step 1: Checkout the develop branch (or the branch you want to update dependencies on)
-      - name: Checkout main branch
+      - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
-          ref: develop # You can change this to your target branch (main, master, etc.)
+          ref: develop # Change this to your target branch (main, master, etc.)
 
-      # Step 2: Set up Node.js and pnpm for the backend
+      # Step 2: Set up Node.js for Backend (with pnpm cache)
       - name: Set up Node.js for Backend
         uses: actions/setup-node@v4
         with:
@@ -28,12 +28,12 @@ jobs:
           cache: "pnpm" # Enable caching for pnpm
         working-directory: ./backend # Specify backend directory
 
-      # Step 3: Install pnpm globally in the backend folder
+      # Step 3: Install pnpm in the Backend
       - name: Install pnpm in Backend
         run: npm install -g pnpm
         working-directory: ./backend # Specify backend directory
 
-      # Step 4: Install Backend Dependencies
+      # Step 4: Install Backend Dependencies (using pnpm-lock.yaml in backend)
       - name: Install Backend Dependencies
         run: pnpm install
         working-directory: ./backend # Specify backend directory
@@ -43,7 +43,7 @@ jobs:
         run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
         working-directory: ./backend # Specify backend directory
 
-      # Step 6: Set up Node.js and pnpm for the frontend
+      # Step 6: Set up Node.js for Frontend (with pnpm cache)
       - name: Set up Node.js for Frontend
         uses: actions/setup-node@v4
         with:
@@ -51,12 +51,12 @@ jobs:
           cache: "pnpm" # Enable caching for pnpm
         working-directory: ./frontend # Specify frontend directory
 
-      # Step 7: Install pnpm globally in the frontend folder
+      # Step 7: Install pnpm in the Frontend
       - name: Install pnpm in Frontend
         run: npm install -g pnpm
         working-directory: ./frontend # Specify frontend directory
 
-      # Step 8: Install Frontend Dependencies
+      # Step 8: Install Frontend Dependencies (using pnpm-lock.yaml in frontend)
       - name: Install Frontend Dependencies
         run: pnpm install
         working-directory: ./frontend # Specify frontend directory
@@ -66,18 +66,18 @@ jobs:
         run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
         working-directory: ./frontend # Specify frontend directory
 
-      # Step 10: Create a Pull Request with updated dependencies
+      # Step 10: Create Pull Request
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} # GitHub token to create the PR
-          commit-message: "chore: update dependencies and fix vulnerabilities"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update frontend/backend dependencies"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps # The branch where the changes will be made
-          base: develop # The branch to merge into (change if necessary)
-          delete-branch: true # Delete the branch after the PR is merged
+          branch: chore/update-deps-main
+          base: main
+          delete-branch: true
           title: "chore: Update Dependencies"
           body: |
             Automated dependency update for:
