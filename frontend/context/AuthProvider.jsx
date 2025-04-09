@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from "react";
-import api from "@/lib/api"; // assuming this is your axios instance
+import api from "@/lib/api";
 import { tc } from "@/lib/tc";
 
 const AuthContext = createContext(undefined);

@@ -31,83 +31,83 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/home",
-      icon: IconDashboard,
+export function AppSidebar({ userInfo, ...props }) {
+  const data = {
+    user: {
+      name: userInfo?.name || userInfo.username,
+      email: userInfo.username,
+      avatar: "/avatars/shadcn.jpg",
     },
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "/home",
+        icon: IconDashboard,
+      },
 
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-  ],
-};
+      {
+        title: "Projects",
+        url: "#",
+        icon: IconFolder,
+      },
+    ],
+    navClouds: [
+      {
+        title: "Capture",
+        icon: IconCamera,
+        isActive: true,
+        url: "#",
+        items: [
+          {
+            title: "Active Proposals",
+            url: "#",
+          },
+          {
+            title: "Archived",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Proposal",
+        icon: IconFileDescription,
+        url: "#",
+        items: [
+          {
+            title: "Active Proposals",
+            url: "#",
+          },
+          {
+            title: "Archived",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Prompts",
+        icon: IconFileAi,
+        url: "#",
+        items: [
+          {
+            title: "Active Proposals",
+            url: "#",
+          },
+          {
+            title: "Archived",
+            url: "#",
+          },
+        ],
+      },
+    ],
+    navSecondary: [
+      {
+        title: "Settings",
+        url: "#",
+        icon: IconSettings,
+      },
+    ],
+  };
 
-export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

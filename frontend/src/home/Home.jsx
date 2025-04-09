@@ -1,18 +1,34 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { DataTable } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useAuth } from "@/context/AuthProvider";
+import api from "@/lib/api";
 
-import data from "./data.json";
+import data from "@/src/home/data.json";
+import { tc } from "@/lib/tc";
 
 const Home = () => {
+  const { userId } = useAuth();
+  const [userInfo, setUserInfo] = useState({});
+  useEffect(async () => {
+    async function fetchData() {
+      const [response, error] = await tc(() =>
+        api.post("/api/user/profile/get", { userId })
+      );
+      setUserInfo(response.data.objData);
+      console.log(response);
+    }
+    fetchData();
+  }, []);
+
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar variant="inset" />
+        <AppSidebar userInfo={userInfo} variant="inset" />
         <SidebarInset>
           <SiteHeader title={"Dashboard"} />
 
@@ -21,7 +37,7 @@ const Home = () => {
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                 <div className="px-4 lg:px-6">
                   <h1 className="text-4xl">
-                    Welcome back, akdsjlajsdlaksjdalskj!
+                    Welcome back, {userInfo?.name || userInfo?.username}!
                   </h1>
                 </div>
                 <SectionCards />

@@ -37,9 +37,8 @@ module.exports = ({ logger, joi }) => {
           "string.email": "Username must be a valid email address.",
           "string.empty": "Username (email) is required.",
         }),
-      password: joi.string().trim().required().min(8).messages({
+      password: joi.string().trim().required().messages({
         "string.empty": "Password is required.",
-        "string.min": "Password must be at least 8 characters long.",
       }),
     });
 
