@@ -26,22 +26,22 @@ jobs:
         with:
           node-version: "20" # Specify Node.js version for the backend
           cache: "pnpm" # Enable caching for pnpm
-        working-directory: ./backend # Specify backend directory
 
       # Step 3: Install pnpm in the Backend
       - name: Install pnpm in Backend
         run: npm install -g pnpm
-        working-directory: ./backend # Specify backend directory
 
       # Step 4: Install Backend Dependencies (using pnpm-lock.yaml in backend)
       - name: Install Backend Dependencies
-        run: pnpm install
-        working-directory: ./backend # Specify backend directory
+        run: |
+          cd ./backend  # Change directory to backend
+          pnpm install
 
       # Step 5: Fix Backend Vulnerabilities
       - name: Fix Backend Vulnerabilities
-        run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
-        working-directory: ./backend # Specify backend directory
+        run: |
+          cd ./backend  # Change directory to backend
+          pnpm audit fix || true  # Automatically fix vulnerabilities (if any)
 
       # Step 6: Set up Node.js for Frontend (with pnpm cache)
       - name: Set up Node.js for Frontend
@@ -49,22 +49,22 @@ jobs:
         with:
           node-version: "20" # Specify Node.js version for the frontend
           cache: "pnpm" # Enable caching for pnpm
-        working-directory: ./frontend # Specify frontend directory
 
       # Step 7: Install pnpm in the Frontend
       - name: Install pnpm in Frontend
         run: npm install -g pnpm
-        working-directory: ./frontend # Specify frontend directory
 
       # Step 8: Install Frontend Dependencies (using pnpm-lock.yaml in frontend)
       - name: Install Frontend Dependencies
-        run: pnpm install
-        working-directory: ./frontend # Specify frontend directory
+        run: |
+          cd ./frontend  # Change directory to frontend
+          pnpm install
 
       # Step 9: Fix Frontend Vulnerabilities
       - name: Fix Frontend Vulnerabilities
-        run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
-        working-directory: ./frontend # Specify frontend directory
+        run: |
+          cd ./frontend  # Change directory to frontend
+          pnpm audit fix || true  # Automatically fix vulnerabilities (if any)
 
       # Step 10: Create Pull Request
       - name: Create Pull Request
