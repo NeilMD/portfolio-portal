@@ -1,49 +1,61 @@
 name: Update Dependencies
+
 on:
   schedule:
-    - cron: "0 2 * * 1"
+    - cron: "0 2 * * 1" # every Monday at 2AM UTC
   workflow_dispatch:
 
 jobs:
   update-deps:
-    name: Update Dependencies
+    name: Update Frontend and Backend Dependencies
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+
     steps:
-      # develop branch
-      - name: Checkout develop branch
+      # Checkout main branch
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: develop
-      # set up node
+          ref: main
+
+      # Setup Node.js
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
           cache: "npm"
-      # Make sure we have a clean Install First
-      - name: Install Dependencies
-        run: npm ci
-      # fix vulnerabilities
-      - name: Check for and Fix Vulnerabilities
-        run: npm audit fix
-      # Create a pull request to the develop branch
+
+      # Install & audit fix in backend
+      - name: Install and Audit Fix in Backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm audit fix
+
+      # Install & audit fix in frontend
+      - name: Install and Audit Fix in Frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm audit fix
+
+      # Create Pull Request to main
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update dependencies and fix vulnerabilities to develop branch"
+          commit-message: "chore: update backend & frontend dependencies"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps-develop
-          base: develop
+          branch: chore/update-deps-main
+          base: main
           delete-branch: true
-          title: "[Develop] chore: Update Dependencies & Fix Vulnerabilities"
+          title: "[Main] chore: Update Backend & Frontend Dependencies"
           body: |
-            Automated dependency update run by GitHub Actions targeting `develop`.
+            Automated PR to update dependencies in both `backend/` and `frontend/`.
 
-            Updates dependencies based on `npm audit fix`.
-            Please review changes and ensure tests pass before merging into `develop`.
+            - Ran `npm audit fix` in each folder.
+            - Please review and run tests before merging.
