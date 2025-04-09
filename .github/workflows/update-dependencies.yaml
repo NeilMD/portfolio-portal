@@ -25,9 +25,11 @@ jobs:
           node-version: "22.x"
           cache: "pnpm"
 
-      # Install pnpm globally using npm (Ensure pnpm is available in PATH)
-      - name: Install pnpm globally
-        run: npm install -g pnpm
+      # Set up pnpm using pnpm/action-setup
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3 # docs https://pnpm.io/continuous-integration#github-actions
+        with:
+          version: 8 # Optional: specify a pnpm version
 
       # ==========================
       # Backend Dependencies
