@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-deps:
-    name: Update Frontend and Backend Dependencies
+    name: Update Dependencies
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,51 +19,57 @@ jobs:
         with:
           ref: main
 
-      # Install pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8 # Or whichever version you're using
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
           cache: "pnpm"
 
-      # BACKEND updates
-      - name: Install backend deps
-        working-directory: ./backend
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # ==========================
+      # Backend Dependencies
+      # ==========================
+      - name: Install Backend Dependencies
         run: pnpm install
-
-      - name: Audit fix backend
         working-directory: ./backend
-        run: pnpm audit fix || true
 
-      # FRONTEND updates
-      - name: Install frontend deps
-        working-directory: ./frontend
+      - name: Fix Backend Vulnerabilities
+        run: pnpm audit fix || true
+        working-directory: ./backend
+
+      # ==========================
+      # Frontend Dependencies
+      # ==========================
+      - name: Install Frontend Dependencies
         run: pnpm install
-
-      - name: Audit fix frontend
         working-directory: ./frontend
-        run: pnpm audit fix || true
 
-      # Create PR with updates
+      - name: Fix Frontend Vulnerabilities
+        run: pnpm audit fix || true
+        working-directory: ./frontend
+
+      # ==========================
+      # Create Pull Request
+      # ==========================
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update dependencies in frontend and backend"
+          commit-message: "chore: update frontend/backend dependencies"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
           branch: chore/update-deps-main
           base: main
           delete-branch: true
-          title: "[Main] chore: Update Dependencies (pnpm)"
+          title: "chore: Update Dependencies"
           body: |
-            This PR was automatically created by GitHub Actions.
-            - Updated dependencies via `pnpm install`
-            - Attempted to fix vulnerabilities using `pnpm audit fix`
-            - Applies to both `frontend/` and `backend/` directories
+            Automated dependency update for:
+            - `backend/`
+            - `frontend/`
+
+            Using **pnpm** and `pnpm audit fix`.
