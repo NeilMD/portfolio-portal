@@ -1,0 +1,48 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-deps:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install pnpm (global)
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Fix vulnerabilities
+        run: pnpm audit fix || true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update dependencies"
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: chore/update-deps-main
+          base: main
+          delete-branch: true
+          title: "chore: Update Dependencies"
+          body: |
+            Automated dependency update using **pnpm** and `pnpm audit fix`.
