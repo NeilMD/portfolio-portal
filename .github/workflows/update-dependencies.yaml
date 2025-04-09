@@ -20,13 +20,6 @@ jobs:
         with:
           ref: develop # Change this to your target branch (main, master, etc.)
 
-      # Step 2: Set up Node.js for Backend (with pnpm cache)
-      - name: Set up Node.js for Backend
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20" # Specify Node.js version for the backend
-          cache: "pnpm" # Enable caching for pnpm
-
       # Step 3: Install pnpm in the Backend
       - name: Install pnpm in Backend
         run: npm install -g pnpm
