@@ -18,7 +18,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: develop
 
       # Set up Node.js
       - name: Set up Node.js
