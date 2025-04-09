@@ -3,69 +3,81 @@ name: Update Dependencies
 on:
   schedule:
     - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
-  workflow_dispatch:
+  workflow_dispatch: # Trigger manually from GitHub UI
 
 jobs:
   update-deps:
     name: Update Dependencies
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # Permission to push to the repository
+      pull-requests: write # Permission to create pull requests
 
     steps:
-      # Checkout main branch
-      - name: Checkout
+      # Step 1: Checkout the develop branch (or the branch you want to update dependencies on)
+      - name: Checkout main branch
         uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
         with:
-          version: 10
-          run_install: false
+          ref: develop # You can change this to your target branch (main, master, etc.)
 
-      - name: Install Node.js
+      # Step 2: Set up Node.js and pnpm for the backend
+      - name: Set up Node.js for Backend
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: "20" # Specify Node.js version for the backend
+          cache: "pnpm" # Enable caching for pnpm
+        working-directory: ./backend # Specify backend directory
 
-      # ==========================
-      # Backend Dependencies
-      # ==========================
+      # Step 3: Install pnpm globally in the backend folder
+      - name: Install pnpm in Backend
+        run: npm install -g pnpm
+        working-directory: ./backend # Specify backend directory
+
+      # Step 4: Install Backend Dependencies
       - name: Install Backend Dependencies
         run: pnpm install
-        working-directory: ./backend
+        working-directory: ./backend # Specify backend directory
 
+      # Step 5: Fix Backend Vulnerabilities
       - name: Fix Backend Vulnerabilities
-        run: pnpm audit fix || true
-        working-directory: ./backend
+        run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
+        working-directory: ./backend # Specify backend directory
 
-      # ==========================
-      # Frontend Dependencies
-      # ==========================
+      # Step 6: Set up Node.js and pnpm for the frontend
+      - name: Set up Node.js for Frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Specify Node.js version for the frontend
+          cache: "pnpm" # Enable caching for pnpm
+        working-directory: ./frontend # Specify frontend directory
+
+      # Step 7: Install pnpm globally in the frontend folder
+      - name: Install pnpm in Frontend
+        run: npm install -g pnpm
+        working-directory: ./frontend # Specify frontend directory
+
+      # Step 8: Install Frontend Dependencies
       - name: Install Frontend Dependencies
         run: pnpm install
-        working-directory: ./frontend
+        working-directory: ./frontend # Specify frontend directory
 
+      # Step 9: Fix Frontend Vulnerabilities
       - name: Fix Frontend Vulnerabilities
-        run: pnpm audit fix || true
-        working-directory: ./frontend
+        run: pnpm audit fix || true # Automatically fix vulnerabilities (if any)
+        working-directory: ./frontend # Specify frontend directory
 
-      # ==========================
-      # Create Pull Request
-      # ==========================
+      # Step 10: Create a Pull Request with updated dependencies
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update frontend/backend dependencies"
+          token: ${{ secrets.GITHUB_TOKEN }} # GitHub token to create the PR
+          commit-message: "chore: update dependencies and fix vulnerabilities"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps-main
-          base: main
-          delete-branch: true
+          branch: chore/update-deps # The branch where the changes will be made
+          base: develop # The branch to merge into (change if necessary)
+          delete-branch: true # Delete the branch after the PR is merged
           title: "chore: Update Dependencies"
           body: |
             Automated dependency update for:
