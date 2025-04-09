@@ -12,6 +12,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    defaults:
+      run:
+        working-directory: ./backend/
 
     steps:
       - name: Checkout repository
@@ -31,17 +34,13 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install backend dependencies
-        run: |
-          cd backend
-          pnpm install
+        run: pnpm install
 
       - name: Fix backend vulnerabilities
-        run: |
-          cd backend
-          pnpm audit fix || true
+        run: pnpm audit fix || true
 
       # ======================
-      # Frontend
+      # Frontend (override working-directory)
       # ======================
       - name: Set up Node.js for frontend
         uses: actions/setup-node@v4
@@ -51,14 +50,12 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install frontend dependencies
-        run: |
-          cd frontend
-          pnpm install
+        run: pnpm install
+        working-directory: ./frontend
 
       - name: Fix frontend vulnerabilities
-        run: |
-          cd frontend
-          pnpm audit fix || true
+        run: pnpm audit fix || true
+        working-directory: ./frontend
 
       # ======================
       # Create Pull Request
