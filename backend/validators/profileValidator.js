@@ -41,17 +41,22 @@ module.exports = ({ logger, joi }) => {
           "string.email": "Email must be a valid email address.",
           "string.empty": "Email is required.",
         }),
-      name: joi.string().required().trim().max(100).messages({
+      name: joi.string().required().trim().min(3).max(50).messages({
         "string.empty": "Name is required.",
         "string.min": "Name must be at least 2 characters long.",
         "string.max": "Name cannot be longer than 100 characters.",
       }),
 
-      bio: joi.string().required().trim().max(500).messages({
-        "string.empty": "Bio is required.",
-        "string.min": "Bio must be at least 10 characters long.",
-        "string.max": "Bio cannot be longer than 500 characters.",
-      }),
+      bio: joi
+        .string()
+        .max(500)
+        .pattern(/^[^<>]*$/) // No HTML tags like <script> or <b>
+        .pattern(/^[a-zA-Z0-9\s.,!?'"()-]*$/) // Allow basic punctuation
+        .messages({
+          "string.max": "Bio must be at most 500 characters.",
+          "string.pattern.base":
+            "Bio must not contain HTML tags or special characters.",
+        }),
     });
 
     logger.info("profileValidator/edit: END");

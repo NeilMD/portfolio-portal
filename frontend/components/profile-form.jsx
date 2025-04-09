@@ -33,12 +33,21 @@ export function ProfileForm({ userInfo, userId, setUserInfo }) {
       .nonempty({
         message: "Username is required.",
       }),
-    name: z.string().nonempty({
-      message: "Name is required.",
-    }),
-    bio: z.string().nonempty({
-      message: "Bio is required.",
-    }),
+    name: z
+      .string()
+      .min(3, { message: "Name must be at least 3 characters." })
+      .max(50, { message: "Name must be at most 50 characters." })
+      .regex(/^[A-Za-z\s]+$/, {
+        message: "Name must contain only letters and spaces.",
+      })
+      .nonempty({ message: "Name is required." }),
+    bio: z
+      .string()
+      .max(500, { message: "Bio must be 500 characters or less." })
+      .regex(/^[\w\s.,!?'"()-]*$/, {
+        message: "Bio must not contain HTML tags or special characters.",
+      })
+      .nonempty({ message: "Bio is required." }),
   });
 
   const form = useForm({
@@ -64,15 +73,17 @@ export function ProfileForm({ userInfo, userId, setUserInfo }) {
       api.post("/api/user/profile/edit", { userId, ...value })
     );
     console.log(response);
-    if (response.data.numCode == 0) {
+    console.log(error);
+    if (response?.data?.numCode == 0) {
       setUserInfo(response.data.objData);
       setSuccessMessage("Profile updated successfully.");
       form.clearErrors("root"); // Clear any previous root/server errors
     } else {
+      const errorString = error?.response?.data?.errors.join(", ");
       setSuccessMessage(""); // clear success if there's an error
       form.setError("root", {
         type: "server",
-        message: response.data.objError,
+        message: response?.data?.objError || errorString,
       });
     }
 
