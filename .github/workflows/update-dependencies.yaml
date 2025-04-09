@@ -20,12 +20,13 @@ jobs:
         with:
           ref: main
 
-      # Setup Node.js
-      - name: Use Node.js 22.x
+      # Setup Node.js for Backend with cache
+      - name: Setup Node.js for Backend
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
           cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
       # Install & audit fix in backend
       - name: Install and Audit Fix in Backend
@@ -33,6 +34,14 @@ jobs:
         run: |
           npm ci
           npm audit fix
+
+      # Setup Node.js for Frontend with cache
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       # Install & audit fix in frontend
       - name: Install and Audit Fix in Frontend
