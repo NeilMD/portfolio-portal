@@ -25,10 +25,10 @@ jobs:
           node-version: "22.x"
           cache: "pnpm"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - name: Enable Corepack & Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
 
       # ==========================
       # Backend Dependencies
