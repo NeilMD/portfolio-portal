@@ -56,11 +56,14 @@ export function SignupForm({ className, ...props }) {
   });
 
   const handleSubmit = async (value) => {
-    console.log(value);
-    console.log("signup");
     const [data, error] = await tc(() => signup(value)); // Use login function to authenticate
     if (data.success) {
       navigate("/home");
+    } else {
+      form.setError("root", {
+        type: "server",
+        message: data.error,
+      });
     }
   };
   return (
@@ -105,6 +108,13 @@ export function SignupForm({ className, ...props }) {
                     )}
                   />
                 </div>
+                {form.formState.errors.root && (
+                  <div className="grid text-red-500 text-sm">
+                    <p>Registration Failed!</p>
+
+                    {form.formState.errors.root.message}
+                  </div>
+                )}
                 <div className="flex flex-col gap-3">
                   <Button type="submit" className="w-full">
                     Create an account

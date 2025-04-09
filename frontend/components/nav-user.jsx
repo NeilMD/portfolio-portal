@@ -34,8 +34,9 @@ export function NavUser({ user }) {
     navigate("/profile/edit");
   };
   const handleLogout = async () => {
-    const [response, erorr] = await tc(() => logout());
     navigate("/");
+    const [response, error] = await tc(() => logout());
+    console.log(error);
   };
   return (
     <SidebarMenu>
@@ -47,9 +48,11 @@ export function NavUser({ user }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">
+                  {user?.name || user.username}
+                </span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
+                  {user?.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -66,10 +69,14 @@ export function NavUser({ user }) {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src={user.avatar}
-                    alt={user.name.substring(0, 2)}
+                    alt={
+                      user?.name?.substring(0, 2) ||
+                      user?.username?.substring(0, 2)
+                    }
                   />
                   <AvatarFallback className="rounded-lg uppercase">
-                    {user.name.substring(0, 2)}
+                    {user?.name?.substring(0, 2) ||
+                      user?.username?.substring(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

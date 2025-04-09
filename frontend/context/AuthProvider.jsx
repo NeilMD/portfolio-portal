@@ -24,20 +24,20 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMe = async () => {
-      const [response, error] = await tc(() => api.post("/api/auth/refresh"));
-      console.log(response);
-      if (response.data.numCode == 1) {
-        setToken(null);
-      } else {
-        setToken(response.data.objData.accessToken);
-        setUserId(response.data.objData.userId);
-      }
-      setLoading(false); // Finish loading after token check
-    };
-
     fetchMe();
   }, []);
+
+  const fetchMe = async () => {
+    const [response, error] = await tc(() => api.post("/api/auth/refresh"));
+    console.log(response);
+    if (!response || response?.data?.numCode == 1) {
+      setToken(null);
+    } else {
+      setToken(response.data.objData.accessToken);
+      setUserId(response.data.objData.userId);
+    }
+    setLoading(false); // Finish loading after token check
+  };
 
   useLayoutEffect(() => {
     const authInterceptor = api.interceptors.request.use((config) => {
@@ -47,7 +47,11 @@ const AuthProvider = ({ children }) => {
           : config.headers.Authorization;
       return config;
     });
-    return () => api.interceptors.request.eject(authInterceptor);
+    return () => {
+      if (authInterceptor) {
+        api?.interceptors?.request?.eject(authInterceptor);
+      }
+    };
   }, [token]);
 
   useLayoutEffect(() => {
@@ -80,7 +84,9 @@ const AuthProvider = ({ children }) => {
     );
 
     return () => {
-      api.interceptors.response.eject(refreshInterceptor);
+      if (refreshInterceptor) {
+        api?.interceptors?.response?.eject(refreshInterceptor);
+      }
     };
   }, []);
 
@@ -88,9 +94,13 @@ const AuthProvider = ({ children }) => {
     const [response, error] = await tc(() =>
       api.post("/api/auth/login", credentials)
     );
-    if (error) {
+    console.log(error);
+    if (error || response.data.numCode == 1) {
       setToken(null);
-      return { success: false, error };
+      return {
+        success: false,
+        error: response?.data?.objError || error?.response?.statusText,
+      };
     } else {
       setToken(response.data.objData.accessToken); // Save token from response
       setUserId(response.data.objData.userId);
@@ -108,9 +118,12 @@ const AuthProvider = ({ children }) => {
       api.post("/api/auth/signup", userData)
     );
     console.log(response.data);
-    if (error) {
+    if (error || response.data.numCode == 1) {
       setToken(null);
-      return { success: false, error };
+      return {
+        success: false,
+        error: response?.data?.objError || error?.response?.statusText,
+      };
     } else {
       setToken(response.data.objData.accessToken);
       setUserId(response.data.objData.userId);

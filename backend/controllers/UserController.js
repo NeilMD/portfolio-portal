@@ -53,13 +53,13 @@ module.exports = ({ config, model, logger, util, asyncHandler }) => {
       });
       if (updatedUser.numCode) {
         objResult.numCode = 1;
-        objResult.objError = "User profile update failed.";
+        objResult.objError = `The email is already in use. Please choose another.`;
       } else {
         objResult.objSuccess = "User profile updated successfully.";
         objResult.objData = {
           userId: updatedUser.objResult._id,
           name: updatedUser.objResult.name,
-          email: updatedUser.objResult.username,
+          username: updatedUser.objResult.username,
           bio: updatedUser.objResult.bio,
         };
       }

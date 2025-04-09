@@ -19,7 +19,6 @@ createRoot(root).render(
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected routes inside ProtectedLayout */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile/edit" element={<EditProfile />} />
