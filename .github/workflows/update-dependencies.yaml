@@ -7,63 +7,77 @@ on:
 
 jobs:
   update-deps:
-    name: Update Backend & Frontend Dependencies
+    name: Update Dependencies
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
 
     steps:
-      - name: Checkout develop branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: develop
 
-      - name: Set up Node.js
+      # ======================
+      # Backend
+      # ======================
+      - name: Set up Node.js for backend
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
+          cache: pnpm
+          cache-dependency-path: backend/pnpm-lock.yaml
 
-      - name: Install pnpm
-        run: npm install -g pnpm@8
+      - name: Install pnpm (global)
+        run: npm install -g pnpm
 
-      # ==========================
-      # Update Backend
-      # ==========================
       - name: Install backend dependencies
         run: |
           cd backend
           pnpm install
+
+      - name: Fix backend vulnerabilities
+        run: |
+          cd backend
           pnpm audit fix || true
 
-      # ==========================
-      # Update Frontend
-      # ==========================
+      # ======================
+      # Frontend
+      # ======================
+      - name: Set up Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
       - name: Install frontend dependencies
         run: |
           cd frontend
           pnpm install
+
+      - name: Fix frontend vulnerabilities
+        run: |
+          cd frontend
           pnpm audit fix || true
 
-      # ==========================
+      # ======================
       # Create Pull Request
-      # ==========================
+      # ======================
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update dependencies and fix vulnerabilities"
+          commit-message: "chore: update frontend/backend dependencies"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps
-          base: develop
+          branch: chore/update-deps-main
+          base: main
           delete-branch: true
           title: "chore: Update Dependencies"
           body: |
-            ✅ This automated PR updates dependencies using `pnpm install` and `pnpm audit fix` in:
+            Automated dependency update for:
             - backend/
             - frontend/
 
-            Please review and merge if everything looks good.
+            Using **pnpm** and `pnpm audit fix`.
