@@ -2,7 +2,7 @@ name: Update Dependencies
 
 on:
   schedule:
-    - cron: "0 2 * * 1" # every Monday at 2AM UTC
+    - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
   workflow_dispatch:
 
 jobs:
@@ -14,57 +14,56 @@ jobs:
       pull-requests: write
 
     steps:
-      # Checkout main branch
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
           ref: main
 
-      # Setup Node.js for Backend with cache
-      - name: Setup Node.js for Backend
+      # Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8 # Or whichever version you're using
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
+          cache: "pnpm"
 
-      # Install & audit fix in backend
-      - name: Install and Audit Fix in Backend
+      # BACKEND updates
+      - name: Install backend deps
         working-directory: ./backend
-        run: |
-          npm ci
-          npm audit fix
+        run: pnpm install
 
-      # Setup Node.js for Frontend with cache
-      - name: Setup Node.js for Frontend
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.x"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+      - name: Audit fix backend
+        working-directory: ./backend
+        run: pnpm audit fix || true
 
-      # Install & audit fix in frontend
-      - name: Install and Audit Fix in Frontend
+      # FRONTEND updates
+      - name: Install frontend deps
         working-directory: ./frontend
-        run: |
-          npm ci
-          npm audit fix
+        run: pnpm install
 
-      # Create Pull Request to main
+      - name: Audit fix frontend
+        working-directory: ./frontend
+        run: pnpm audit fix || true
+
+      # Create PR with updates
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update backend & frontend dependencies"
+          commit-message: "chore: update dependencies in frontend and backend"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
           branch: chore/update-deps-main
           base: main
           delete-branch: true
-          title: "[Main] chore: Update Backend & Frontend Dependencies"
+          title: "[Main] chore: Update Dependencies (pnpm)"
           body: |
-            Automated PR to update dependencies in both `backend/` and `frontend/`.
-
-            - Ran `npm audit fix` in each folder.
-            - Please review and run tests before merging.
+            This PR was automatically created by GitHub Actions.
+            - Updated dependencies via `pnpm install`
+            - Attempted to fix vulnerabilities using `pnpm audit fix`
+            - Applies to both `frontend/` and `backend/` directories
