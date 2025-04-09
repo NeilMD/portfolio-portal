@@ -14,22 +14,24 @@ jobs:
       pull-requests: write
 
     steps:
+      # Checkout main branch
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
           ref: main
 
+      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
           cache: "pnpm"
 
-      # Set up pnpm using pnpm/action-setup
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3 # docs https://pnpm.io/continuous-integration#github-actions
+      # Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: 8 # Optional: specify a pnpm version
+          version: "10" # Specify pnpm version you want to use
 
       # ==========================
       # Backend Dependencies
@@ -70,7 +72,7 @@ jobs:
           title: "chore: Update Dependencies"
           body: |
             Automated dependency update for:
-            - `backend/`
-            - `frontend/`
+            - backend/
+            - frontend/
 
             Using **pnpm** and `pnpm audit fix`.
