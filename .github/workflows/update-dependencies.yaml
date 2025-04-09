@@ -1,0 +1,49 @@
+name: Update Dependencies
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+jobs:
+  update-deps:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # develop branch
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+      # set up node
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+      # Make sure we have a clean Install First
+      - name: Install Dependencies
+        run: npm ci
+      # fix vulnerabilities
+      - name: Check for and Fix Vulnerabilities
+        run: npm audit fix
+      # Create a pull request to the develop branch
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update dependencies and fix vulnerabilities to develop branch"
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: chore/update-deps-develop
+          base: develop
+          delete-branch: true
+          title: "[Develop] chore: Update Dependencies & Fix Vulnerabilities"
+          body: |
+            Automated dependency update run by GitHub Actions targeting `develop`.
+
+            Updates dependencies based on `npm audit fix`.
+            Please review changes and ensure tests pass before merging into `develop`.
