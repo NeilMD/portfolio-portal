@@ -30,6 +30,13 @@ jobs:
           cache: pnpm
           cache-dependency-path: ./backend/pnpm-lock.yaml
 
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+          standalone: true
+          dest: ~/setup-pnpm
+
       - name: Install pnpm (global)
         run: npm install -g pnpm
 
