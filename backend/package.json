@@ -10,6 +10,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "hsts": "^2.2.0",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.13.0",
     "mongoose": "^8.12.1",

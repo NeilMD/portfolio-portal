@@ -20,6 +20,7 @@ export const useAuth = () => {
 
 const AuthProvider = ({ children }) => {
   const [token, setToken] = useState();
+  const [userId, setUserId] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,8 @@ const AuthProvider = ({ children }) => {
       if (response.data.numCode == 1) {
         setToken(null);
       } else {
-        setToken(response.data.objData);
+        setToken(response.data.objData.accessToken);
+        setUserId(response.data.objData.userId);
       }
       setLoading(false); // Finish loading after token check
     };
@@ -65,7 +67,8 @@ const AuthProvider = ({ children }) => {
           if (error) {
             setToken(null);
           } else {
-            setToken(response.data.objData);
+            setToken(response.data.objData.accessToken);
+            setUserId(response.data.objData.userId);
             originalRequest.headers.Authorization = `Bearer ${response.data.objData}`;
             originalRequest._retry = true;
 
@@ -89,7 +92,8 @@ const AuthProvider = ({ children }) => {
       setToken(null);
       return { success: false, error };
     } else {
-      setToken(response.data.objData); // Save token from response
+      setToken(response.data.objData.accessToken); // Save token from response
+      setUserId(response.data.objData.userId);
       return { success: true, error };
     }
   };
@@ -108,13 +112,16 @@ const AuthProvider = ({ children }) => {
       setToken(null);
       return { success: false, error };
     } else {
-      setToken(response.data.objData);
+      setToken(response.data.objData.accessToken);
+      setUserId(response.data.objData.userId);
       return { success: true };
     }
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, signup, loading }}>
+    <AuthContext.Provider
+      value={{ token, login, logout, signup, loading, userId }}
+    >
       {children}
     </AuthContext.Provider>
   );

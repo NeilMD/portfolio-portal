@@ -14,7 +14,12 @@ module.exports = (logger, mongoose) => {
       type: String,
       required: false,
     },
-
+    bio: {
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: 500,
+    },
     role: {
       type: String,
       enum: ["user", "admin"],

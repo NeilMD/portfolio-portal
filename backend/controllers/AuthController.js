@@ -46,7 +46,10 @@ module.exports = ({
 
       // Store refresh token in HttpOnly cookie
       res.cookie("refreshToken", refreshToken, config.cookieOptions);
-      objResult.objData = accessToken;
+      objResult.objData = {
+        accessToken: accessToken,
+        userId: objHeader.userId,
+      };
       objResult.objSuccess = "User registered successfully!";
     }
 
@@ -89,7 +92,10 @@ module.exports = ({
         let refreshToken = await jwt.generateRefreshToken(objHeader);
         // Store refresh token in HttpOnly cookie
         res.cookie("refreshToken", refreshToken, config.cookieOptions);
-        objResult.objData = accessToken;
+        objResult.objData = {
+          accessToken: accessToken,
+          userId: objHeader.userId,
+        };
         objResult.objSuccess = "User Login successfully!";
       }
     }

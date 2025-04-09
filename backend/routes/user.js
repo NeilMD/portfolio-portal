@@ -1,15 +1,10 @@
-module.exports = ({ logger, cacheMiddleware, controller, router }) => {
-  // GET Retrieves the profile information (bio, skills, social links, etc.).
-  router.get(
-    "/profile/:userId",
-    cacheMiddleware(`public, max-age=300`), // 5 minutes for profile
-    (req, res) => {
-      logger.info("Begin");
-
-      logger.info("End");
-    }
-  );
-
+module.exports = ({
+  logger,
+  cacheMiddleware,
+  profileMiddleware,
+  controller,
+  router,
+}) => {
   // GET Fetches a list of users (for browsing developers’ portfolios).
   router.get(
     "/",
@@ -22,8 +17,19 @@ module.exports = ({ logger, cacheMiddleware, controller, router }) => {
   // POST Creates the user’s profile information (bio, skills, technologies, etc.).
   router.post("/profile/add", () => {});
 
+  // GET Retrieves the profile information (bio, skills, social links, etc.).
+  router.post(
+    "/profile/get",
+    profileMiddleware,
+    controller.UserController.profileGet
+  );
+
   // POST Updates the user’s profile information (bio, skills, technologies, etc.).
-  router.post("/profile/edit/", controller.UserController.profileEdit);
+  router.post(
+    "/profile/edit/",
+    profileMiddleware,
+    controller.UserController.profileEdit
+  );
 
   return router;
 };

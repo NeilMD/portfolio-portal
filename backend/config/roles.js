@@ -123,6 +123,12 @@ module.exports = [
     },
   },
   {
+    path: "/api/user/profile/get",
+    methods: {
+      POST: ["user"], // Both 'user' and 'guest' can GET specific user profiles
+    },
+  },
+  {
     path: "/api/user/profile/*",
     methods: {
       GET: ["user", "guest"], // Both 'user' and 'guest' can GET specific user profiles

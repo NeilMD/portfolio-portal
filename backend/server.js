@@ -19,7 +19,10 @@ const passport = require("passport");
 const cookieParser = require("cookie-parser");
 const GoogleStrategy = require("passport-google-oauth20");
 const rateLimit = require("express-rate-limit");
-let cors = require("cors");
+const cors = require("cors");
+const joi = require("joi");
+const profileMiddleware = require("./middleware/profileMiddleware");
+const authValidator = require("./validators/authValidator");
 
 // Module Init
 const modules = Object.create({});
@@ -30,6 +33,7 @@ modules.process = process;
 modules.asyncHandler = asyncHandler;
 modules.passport = passport;
 modules.rateLimit = rateLimit;
+modules.joi = joi;
 
 // DB Connect
 require("./db")(modules.logger, modules.mongoose, modules.process);
@@ -105,6 +109,18 @@ for (const file in controllerFiles) {
     }),
   });
 }
+
+// Load Validator
+const validatorFiles = requireDir("./validators");
+modules.validator = Object.create({});
+logger.info("=====Load Validators=====");
+for (const file in validatorFiles) {
+  logger.info(`Validators File: ${file}`);
+  modules.validator[file] = validatorFiles[file]({
+    logger: modules.logger,
+    joi: modules.joi,
+  });
+}
 // Load Routes
 const routeFiles = requireDir("./routes");
 modules.route = Object.create({});
@@ -113,14 +129,22 @@ for (const file in routeFiles) {
   logger.info(`Route File: ${file}`);
   modules.route[file] = routeFiles[file]({
     logger: modules.logger,
-    cacheMiddleware: modules.middleware.cacheMiddleware,
     controller: modules.controller,
     router: modules.express_router,
     passport: modules.passport,
+    cacheMiddleware: modules.middleware.cacheMiddleware,
     rateLimitMiddleware: modules.middleware.rateLimitMiddleware({
       rateLimit: modules.rateLimit,
       logger: modules.logger,
       utils: modules.util,
+    }),
+    profileMiddleware: modules.middleware.profileMiddleware({
+      logger: modules.logger,
+      validator: modules.validator,
+    }),
+    authMiddleware: modules.middleware.authMiddleware({
+      logger: modules.logger,
+      validator: modules.validator,
     }),
   });
 }
