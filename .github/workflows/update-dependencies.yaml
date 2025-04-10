@@ -13,26 +13,27 @@ jobs:
       contents: write
       pull-requests: write
 
+    defaults:
+      run:
+        working-directory: ./backend/
+
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
 
-      - name: Setup Node and PNPM
+      - name: Setup node and pnpm
         uses: wyvox/action-setup-pnpm@v3
+        with:
+          args: "--dir backend --ignore-scripts --fix-lockfile"
 
       # ======================
       # Backend
       # ======================
-      - name: Install backend dependencies
-        run: pnpm install
-        working-directory: ./backend
-
       - name: Fix backend vulnerabilities
         run: pnpm audit fix || true
-        working-directory: ./backend
 
       # ======================
-      # Frontend
+      # Frontend (override working-directory)
       # ======================
       - name: Install frontend dependencies
         run: pnpm install
@@ -53,8 +54,8 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: chore/update-deps-developer
-          base: developer
+          branch: chore/update-deps-main
+          base: main
           delete-branch: true
           title: "chore: Update Dependencies"
           body: |
