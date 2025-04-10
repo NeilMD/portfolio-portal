@@ -13,10 +13,6 @@ jobs:
       contents: write
       pull-requests: write
 
-    defaults:
-      run:
-        working-directory: ./backend/
-
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
@@ -24,10 +20,11 @@ jobs:
       - name: List files for debugging
         run: ls -la
 
-      - name: Setup node and pnpm
+      - name: 🛠 Setup Node and PNPM
         uses: wyvox/action-setup-pnpm@v3
         with:
-          args: "--dir backend --ignore-scripts --fix-lockfile"
+          args: "--ignore-scripts --fix-lockfile"
+        working-directory: ./backend
 
       # ======================
       # Backend
