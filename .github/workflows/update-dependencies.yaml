@@ -27,8 +27,9 @@ jobs:
       # Set up Node.js and Install PNPM globally in the backend directory
       # ======================
       - name: Set up Node.js version 22 and Install PNPM
-        uses: actions/setup-node
+        uses: actions/setup-node@v4
         with:
+          node-version: 20
           cache-dependency-path: ./backend/pnpm-lock.yaml
 
       - name: Navigate to backend directory and Install PNPM globally
