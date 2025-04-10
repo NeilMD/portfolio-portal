@@ -24,7 +24,7 @@ jobs:
       - name: Setup node and pnpm
         uses: wyvox/action-setup-pnpm@v3
         with:
-          args: "--dir backend --ignore-scripts --fix-lockfile"
+          args: " --dir backend --ignore-scripts --fix-lockfile"
 
       # ======================
       # Backend
