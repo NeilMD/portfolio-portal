@@ -154,7 +154,9 @@ profileValidator.edit = (postData) => {
 
 ### Output Encoding Methods
 
-While the primary focus is on validation, it’s important to ensure that output data is encoded correctly to prevent security vulnerabilities, such as Cross-Site Scripting (XSS). We employ HTML entity encoding whenever dynamic data is rendered to the frontend to prevent malicious content from being executed in the browser.
+Although the main focus is on input validation, it’s crucial to properly encode output data to avoid security risks like Cross-Site Scripting (XSS). In this project, React automatically handles the sanitization of dynamic data when rendering to the frontend, ensuring that any potentially malicious content is neutralized. This built-in sanitization effectively prevents XSS attacks, making it impossible for harmful scripts to execute in the browser.
+
+Additionally, since we do not accept any data that contains HTML or use dangerouslySetInnerHTML, we did not see the need for an external library to further sanitize the data. React’s native handling is sufficient to ensure security in this case
 
 ### Encryption Techniques Used
 
