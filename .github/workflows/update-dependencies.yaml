@@ -18,11 +18,18 @@ jobs:
         working-directory: ./backend/
 
     steps:
-      - name: Checkout your repository using git
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: setup node and pnpm
-        uses: dafnik/setup-node-pnpm@v4
+      # ======================
+      # Setup Node.js and pnpm for both frontend & backend
+      # ======================
+      - name: Setup pnpm + Node.js
+        uses: wyvox/action-setup-pnpm@v3
+        with:
+          node-version: 22
+          pnpm-version: 8
+          args: "" # optional - you can customize pnpm install flags here
 
       # ======================
       # Backend
