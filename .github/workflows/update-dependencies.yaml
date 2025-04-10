@@ -24,9 +24,6 @@ jobs:
       - name: List files for debugging
         run: ls -la
 
-      - name: Navigate to the directory
-        run: cd backend
-
       - name: Setup node and pnpm
         uses: wyvox/action-setup-pnpm@v3
         with:
