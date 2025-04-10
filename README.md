@@ -1,343 +1,185 @@
-## Project Overview
+# Table of Contents
 
-This project leverages `Express.js` for the backend and React for the frontend, implementing a clear separation of concerns through the **Model-View-Controller (MVC) pattern**. The frontend (`React`) acts as the view, while external routes handle incoming requests, passing them to controllers, which in turn interact with the models for database operations.
+1. [Project Overview](#project-overview)
+2. [Backend Setup and Architecture](#backend-setup-and-architecture)
+3. [Frontend Setup and Components](#frontend-setup-and-components)
+4. [Project Execution and Development Process](#project-execution-and-development-process)
+5. [Security and Validation Overview](#security-and-validation-overview)
+   - [Input Validation Techniques](#input-validation-techniques)
+     - [Frontend Validation (Zod)](#frontend-validation-zod)
+     - [Backend Validation (Joi)](#backend-validation-joi)
+   - [Output Encoding Methods](#output-encoding-methods)
+   - [Encryption Techniques Used](#encryption-techniques-used)
+   - [Third-party Libraries Dependency Management](#third-party-libraries-dependency-management)
+6. [Lessons Learned](#lessons-learned)
+   - [Challenges Faced](#challenges-faced)
+   - [Resolution](#resolution)
 
-## Project Architecture & Project Standard
+---
 
-For this project, we envisioned a modular architecture with a clear separation of concerns, ensuring maintainability and scalability. We adhered to a set of coding standards to promote consistency and readability. Key considerations include:
+## 1. Project Overview
 
-### **Logging**:
+This project leverages **Express.js** for the backend and **React** for the frontend, implementing a clear separation of concerns through the **Model-View-Controller (MVC) pattern**. The frontend (`React`) serves as the view, while external routes handle incoming requests, passing them to controllers, which then interact with models for database operations.
 
-Implemented structured logging for easier debugging and monitoring.
+The project is structured in two main parts:
 
-**Log Flow**:
+1. **Backend**: Focused on implementing JWT authentication, Google OAuth using Auth0, and managing user roles and access.
+2. **Frontend**: Designed with **React** and optimized using **ShadCN** components, implementing JWT authentication, form handling, and token management.
 
-1. **Request Information**: Logs the API request URL and method (e.g., POST, /api/auth/login).
-2. **Middleware Execution**: Tracks middleware execution (e.g., `rbacMiddleware`, `rateLimiterMiddleware`) with `START` and `END` timestamps.
-3. **Controller Execution**: Logs the start and end of controller actions (e.g., `AuthController/login`), showing request handling time.
+### **Phase 3 Enhancements**
 
-Sample log:
+For **Phase 3**, we focused on optimizing the frontend to create a more efficient and visually appealing user experience. **ShadCN Components** were utilized to bootstrap the creation of pages and forms. These pre-built, customizable components expedited the development process, enabling rapid implementation of responsive, consistent, and user-friendly interfaces.
 
-```bash
-[18:41:12.009] INFO (57426): REQUEST URL: /api/auth/login
-[18:41:12.009] INFO (57426): REQUEST METHOD: POST
-[18:41:12.009] INFO (57426): rbacMiddleware: START
-[18:41:12.009] INFO (57426): rbacMiddleware: END
-[18:41:12.010] INFO (57426): rateLimiterMiddleware: START
-[18:41:12.010] INFO (57426): rateLimiterMiddleware: END
-[18:41:12.010] INFO (57426): AuthController/login: START
-[18:41:12.101] INFO (57426): AuthController/login: END
-```
+### **Key Features**
 
-### **Response Consistency**:
+- **JWT Authentication** (Access & Refresh Tokens) for secure user access
+- **Plain JWT Authorization** on the frontend (Google OAuth has not yet been integrated)
+- Robust form management with **React Hook Form** and **Zod** for validation
+- Optimized UI components powered by **ShadCN**
+- Efficient token handling, including refresh and context management
 
-In controllers, all responses are returned at the bottom to improve readability and ensure logical flow. Additionally, we created a utility function to standardize response formatting across the application.
+---
 
-**responseUtil.js**:
+## 2. Backend Setup and Architecture
 
-```javascript
-module.exports = (
-  numCode = 0, // success code: 0 for success, 1 for failure
-  objData = "", // data being pulled or returned
-  objError = "", // error message when an error occurs
-  objSuccess = "" // success message when API call is successful
-) => {
-  return {
-    numCode,
-    objData,
-    objError,
-    objSuccess,
-  };
-};
-```
+For the backend, we implemented **JWT authentication** using both **access tokens** and **refresh tokens**, along with **Google OAuth integration** through **Auth0**. The backend follows a modular architecture, which includes robust logging, role-based access control, and error handling.
 
-**sample response**:
+For detailed information about the backend setup, architecture, and authentication mechanisms, please refer to the [**Backend README**](./backend/README.md).
 
-```javascript
-{
-  "numCode": 0,
-  "objData": "<access token>",
-  "objError": "",
-  "objSuccess": "User Login successfully!"
-}
-```
+---
 
-### **Role-Based Configuration**:
+## 3. Frontend Setup and Components
 
-Role-based access is defined in a centralized configuration file, allowing flexible and manageable role assignments. The configuration file specifies paths and methods associated with specific roles, granting access control based on the role of the user.
+On the frontend, we implemented **JWT authentication** with **React** and **Vite**, focusing on user authentication, token management, and form handling. We utilized **React Hook Form** for managing forms and **Zod** for form validation. Additionally, we incorporated **ShadCN** for streamlined UI development and responsiveness. **Google OAuth integration** has not yet been implemented in the frontend, and the current authentication mechanism relies solely on **JWT authorization**.
 
-**roles.js**:
+For detailed instructions on frontend setup, token management, form handling, and component integration, please refer to the [**Frontend README**](./frontend/README.md).
 
-```javascript
-module.exports = [
-  {
-    path: "/api/project/user/*",
-    methods: {
-      GET: ["user"], // Only 'user' can GET their own projects
-    },
-  },
-  {
-    path: "/api/project",
-    methods: {
-      GET: ["user", "guest"], // Both 'user' and 'guest' can GET all projects
-    },
-  },
-];
-```
+---
 
-In this configuration:
+## 4. Project Execution and Development Process
 
-- The **path** specifies the API endpoint.( \* represent a urlParams such :id, :projectId)
-- The **methods** object defines which roles have access to each HTTP method (e.g., GET, POST).
-- In this example:
-  - Only the **user** role can `GET` their own projects.
-  - Both **user** and **guest** roles can `GET` all projects.
+The development of this project involved:
 
-This centralized configuration simplifies managing role-based access, ensuring that permissions are easily adjustable and scalable across the application.
+- **Backend**: Set up **JWT authentication** with secure token management (access and refresh), integrated **Google OAuth via Auth0**, and ensured a modular, maintainable backend structure.
+- **Frontend**: Focused on creating a responsive user interface using **ShadCN**, managing authentication via **React Context**, handling forms with **React Hook Form and Zod**, and ensuring smooth interactions with the backend using **Axios** for API calls. **Google OAuth** has not been integrated into the frontend, and the authentication is currently handled through **JWT authorization**.
 
-### **Error Handling**:
+- **Optimization and UI**: The UI was designed with usability in mind, using ShadCN components to ensure fast development and an aesthetically pleasing interface.
 
-To improve the readability and maintainability of the code, we abstracted the `try-catch` logic in the controllers by using the `AsyncHandler` package, along with creating our own try-catch wrapper.
+---
 
-Here’s sample usage of our try-catch wrapper:
+## 5. Security and Validation Overview
 
-**tc.js**:
+In this section, we will explain the key security mechanisms implemented in this project, focusing on input validation techniques, output encoding methods, encryption techniques used, third-party libraries dependency management, and the lessons we learned during this phase.
+
+### Input Validation Techniques
+
+We implemented input validation at both the **frontend** and **backend** levels to ensure data integrity and security.
+
+#### Frontend Validation (Zod)
+
+On the frontend, we used **Zod**, a TypeScript-first schema validation library, to validate user inputs. Zod allows us to define clear, robust validation rules for form fields, which ensures that we prevent invalid data from reaching the backend. Below is an example of how we validate form data on the frontend using Zod:
 
 ```javascript
-let result = await util.tc(() => {
-  return newUser.save();
+const formSchema = z.object({
+  username: z
+    .string()
+    .email()
+    .min(2, {
+      message: "Username must be at least 2 characters.",
+    })
+    .nonempty({
+      message: "Username is required.",
+    }),
+  name: z
+    .string()
+    .min(3, { message: "Name must be at least 3 characters." })
+    .max(50, { message: "Name must be at most 50 characters." })
+    .regex(/^[A-Za-z\s]+$/, {
+      message: "Name must contain only letters and spaces.",
+    })
+    .nonempty({ message: "Name is required." }),
+  bio: z
+    .string()
+    .max(500, { message: "Bio must be 500 characters or less." })
+    .regex(/^[\w\s.,!?'"()-]*$/, {
+      message: "Bio must not contain HTML tags or special characters.",
+    })
+    .nonempty({ message: "Bio is required." }),
 });
 ```
 
-### **Dynamic File Loading**:
+#### Backend Validation (Joi)
 
-We dynamically load certain files from folders to improve extensibility and maintain clean code organization.
-
-**Folder Structure**:
-
-```bash
-├── build/                  # Build output directory(For React projects that are built)
-├── config/                 # Configuration files (e.g., database, environment)
-├── controllers/            # Controller logic for handling requests
-├── data/                   # Dummy Data(Depracated)
-├── middleware/             # Middleware functions
-├── models/                 # Database models
-├── node_modules/           # Project dependencies
-├── public/                 # Public assets (e.g., images, frontend files)
-├── routes/                 # Application routes
-├── ssl/                    # SSL certificate and private key
-├── utils/                  # Utility functions
-├── validators/             # Validation logic for data inputs
-├── db.js                   # Database connection file
-├── package.json            # Project manifest (dependencies, scripts, etc.)
-├── pnpm-lock.yaml          # Lockfile for exact dependency versions
-└── server.js               # Entry point for starting the server
-
-```
-
-**Sample loading and Initialization of Files**:
-
-```bash
-[19:14:57.504] INFO (62738): MongoDB Connect: Start
-[19:14:57.518] INFO (62738): ===========================
-[19:14:57.518] INFO (62738): ===========================
-[19:14:57.518] INFO (62738): =====FILE LOADING BEGIN====
-[19:14:57.520] INFO (62738): =====Load Config=====
-[19:14:57.520] INFO (62738): Config File: config
-[19:14:57.520] INFO (62738): Config File: roles
-[19:14:57.521] INFO (62738): =====Load Dummy Data=====
-[19:14:57.521] INFO (62738): Dummy Data File: blogs
-[19:14:57.522] INFO (62738): Dummy Data File: projects
-[19:14:57.522] INFO (62738): Dummy Data File: users
-[19:14:57.525] INFO (62738): =====Load Middleware=====
-[19:14:57.525] INFO (62738): Middleware File: cacheMiddleware
-[19:14:57.525] INFO (62738): Middleware File: errorMiddleware
-[19:14:57.525] INFO (62738): Middleware File: rateLimitMiddleware
-[19:14:57.525] INFO (62738): Middleware File: rbacMiddleware
-[19:14:57.525] INFO (62738): Middleware File: urlLogging
-[19:14:57.550] INFO (62738): =====Load Utils =====
-[19:14:57.550] INFO (62738): Util File: headerAuth
-[19:14:57.550] INFO (62738): Util File: jwt
-[19:14:57.550] INFO (62738): Util File: responseUtil
-[19:14:57.550] INFO (62738): Util File: tc
-[19:14:57.550] INFO (62738): =====Load Model=====
-[19:14:57.550] INFO (62738): Model File: User
-[19:14:57.558] INFO (62738): =====Load Controller=====
-[19:14:57.558] INFO (62738): Controller File: AuthController
-[19:14:57.558] INFO (62738): Controller File: UserController
-[19:14:57.560] INFO (62738): =====Load Routes=====
-[19:14:57.560] INFO (62738): Route File: authentication
-[19:14:57.561] INFO (62738): Route File: blog
-[19:14:57.561] INFO (62738): Route File: contact
-[19:14:57.561] INFO (62738): Route File: project
-[19:14:57.561] INFO (62738): Route File: user
-[19:14:57.561] INFO (62738): =====FILE LOADING DONE=====
-[19:14:57.562] INFO (62738): ===========================
-[19:14:57.562] INFO (62738): ===========================
-[19:14:57.562] INFO (62738): App Init
-[19:14:57.562] INFO (62738): Header Security Init
-[19:14:57.563] INFO (62738): Google Auth Init
-[19:14:57.563] INFO (62738): URL Logging Init
-[19:14:57.563] INFO (62738): RBAC Authentication Init
-[19:14:57.563] INFO (62738): Routes Init
-[19:14:57.584] INFO (62738): HTTP Server running on port 5002
-[19:14:57.584] INFO (62738): HTTPS Server running on port 5001
-[19:14:57.593] INFO (62738): MongoDB Connected: localhost
-[19:14:57.593] INFO (62738): MongoDB Connect: END
-```
-
-## Setup Instructions
-
-1. **Clone the repository:**
-   ```
-    git clone <repository-url>
-    cd <repository-directory>
-   ```
-2. **Install dependencies:**
-   Ensure you have Node.js installed. Then, run the following command to install required dependencies:
-   ```
-    pnpm install
-   ```
-3. **Create .env File:**
-   Make sure to set up your environment variables in a **.env file** in the root directory of your project. Example:
-   ```
-    MONGO_URI=mongodb://localhost:27017/userAuth
-    PORT_HTTP=5002
-    PORT_HTTPS=5001
-    GOOGLE_CLIENT_ID=<insert your google client id>
-    GOOGLE_CLIENT_SECRET=<insert your google client secret>
-    SECRET_ACCESS_TOKEN=<generate secret token for signing access token>
-    SECRET_REFRESH_TOKEN=<generate secret token for signing refresh token>
-   ```
-4. **Configure Database Connection:**
-   Update the connectDB method in _config/db.js_ (currently commented out). This will establish the connection to your database. You can also add your db credentials in the **.env file**.
-   ```
-    MONGO_URI=mongodb+srv://<your_username>:<your_password>@cluster0.mongodb.net/mernbackend?retryWrites=true&w=majority
-    MONGO_URI=mongodb://localhost:27017/
-   ```
-5. **SSL Configuration:**
-   Make sure you have an ssl folder at the root level, containing your SSL certificates:
-   - certificate.pem
-   - private-key.pem
-6. **Run the Server:**
-   Once everything is set up, run the following command to start the server in development mode: - certificate.pem
-   ```
-    pnpm run dev
-   ```
-
-## Authentication Mechanisms
-
-We implemented JWT-based authentication using access and refresh tokens to ensure robust security.
-
-### **Access Token**
-
-- **Access Token Generation**: Upon successful login, an access token (JWT) is generated. The access token contains information such as the user’s ID, role, and expiration time. It has a short expiration time (15 minutes) to minimize the impact of token theft.
-- **Access Token Storage**: For security reasons, the access token is not stored in local storage or session storage to avoid vulnerabilities such as Cross-Site Scripting (XSS). Instead, it is stored in memory and passed in the Authorization header with each HTTP request (Authorization: Bearer <access_token>). This ensures that even if an attacker exploits XSS vulnerabilities, the access token remains safe, as it is not persistently stored in the browser.
-- **Token Expiration and Renewal**: Due to the short lifespan of access tokens, users are required to periodically refresh them using a refresh token, allowing the system to maintain security without requiring frequent logins.
-
-### **Refresh Token**
-
-- **Refresh Token Generation**: Along with the access token, a refresh token is generated at login. The refresh token has a longer expiration time (7 days) and is used solely to request a new access token when the old one expires.
-- **Refresh Token Storage**: Unlike the access token, the refresh token is stored in an HttpOnly cookie. This type of cookie is not accessible via JavaScript, which provides protection against XSS attacks. Storing the refresh token in a secure, HttpOnly cookie also prevents attackers from easily accessing it through client-side scripts.
-- **Token Refresh Process**: When the access token expires, the client automatically sends a request to the server using the refresh token (via an API call) to obtain a new access token. This ensures that the user remains authenticated without having to log in again, and the access token can continue to be sent in headers for secure communication.
-
-Storing the access token in memory and the refresh token in an HttpOnly cookie provides strong protection against security threats. This approach mitigates the risk of XSS attacks, as an attacker cannot steal the refresh token through client-side scripts.
-
-Additionally, CSRF protection is not needed when using Bearer tokens because the browser doesn’t automatically send authentication credentials with requests. Since JWTs are manually included in the Authorization header, CSRF attacks aren’t possible.
-
-## Authentication Mechanisms (Google OAuth)
-
-We use **Google OAuth 2.0** for secure login via Google accounts, integrated with **Passport.js**.
-
-### Google OAuth Flow
-
-1. **Login**: Users start the Google login process by visiting the `/api/auth/login/google` endpoint, which redirects to Google’s OAuth consent screen.
-2. **Callback**: After user authorization, Google redirects to `/api/auth/login/google/callback`. **Passport.js** handles the response, verifying the user and extracting profile info (Google ID, name).
-
-### Passport.js Google OAuth Configuration
-
-- **Client ID & Secret**: Obtained from Google Cloud Console and stored in environment variables.
-- **Callback URL**: Matches the URL set in Google Cloud Console.
-- **Scopes**: We only request profile information (`scope: ["profile"]`).
-
-Example configuration:
+On the backend, we used Joi for input validation. Joi allows us to define schemas that are flexible, expressive, and capable of handling more complex validations, including pattern matching and string length restrictions. Below is an example of how we validate the profile data on the backend:
 
 ```javascript
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/login/google/callback",
-      scope: ["profile"],
-      state: false,
-    },
-    modules.controller.AuthController.googleMain
-  )
-);
+profileValidator.edit = (postData) => {
+  logger.info("profileValidator/edit : START");
+  const profileValidatorSchema = joi.object({
+    userId: joi
+      .string()
+      .required()
+      .trim()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .messages({
+        "string.pattern.base": "Invalid ObjectId format for userId.",
+        "string.empty": "userId is required.",
+      }),
+    username: joi
+      .string()
+      .required()
+      .email({ tlds: { allow: false } })
+      .messages({
+        "string.email": "Email must be a valid email address.",
+        "string.empty": "Email is required.",
+      }),
+    name: joi.string().required().trim().min(3).max(50).messages({
+      "string.empty": "Name is required.",
+      "string.min": "Name must be at least 2 characters long.",
+      "string.max": "Name cannot be longer than 100 characters.",
+    }),
+    bio: joi
+      .string()
+      .max(500)
+      .pattern(/^[^<>]*$/) // No HTML tags like <script> or <b>
+      .pattern(/^[a-zA-Z0-9\s.,!?'"()-]*$/) // Allow basic punctuation
+      .messages({
+        "string.max": "Bio must be at most 500 characters.",
+        "string.pattern.base":
+          "Bio must not contain HTML tags or special characters.",
+      }),
+  });
+};
 ```
 
-### JWT Integration with Google OAuth
+### Output Encoding Methods
 
-- After Google authentication, a **JWT token** is generated for session management. The token is passed in the `Authorization` header (`Bearer <access_token>`) for subsequent API requests.
+While the primary focus is on validation, it’s important to ensure that output data is encoded correctly to prevent security vulnerabilities, such as Cross-Site Scripting (XSS). We employ HTML entity encoding whenever dynamic data is rendered to the frontend to prevent malicious content from being executed in the browser.
 
-### Security Considerations
+### Encryption Techniques Used
 
-- **Stateless Sessions**: No server-side sessions are used (`session: false`). Access is controlled via JWT tokens.
-- **Minimal Permissions**: We only request basic profile information from Google.
+We used JWT (JSON Web Tokens) for secure token-based authentication. These tokens are encrypted with a secret key, ensuring that sensitive data (such as user credentials) is securely transmitted between the frontend and backend. The JWT tokens are also signed to verify their authenticity and integrity.
 
-## Role-Based Access Control (RBAC)
+### Third-party Libraries Dependency Management
 
-In our application, we implemented a **Role-Based Access Control (RBAC)** system to manage access and ensure that only authorized users can perform certain actions. We defined two primary roles:
+We utilize a variety of third-party libraries for key functionalities, including Zod for frontend validation, Joi for backend validation, Axios for API calls, and React Hook Form for form management. All dependencies are managed using npm and are listed in the `package.json` files for both frontend and backend projects.
 
-### 1. Guest
+These libraries help streamline development, improve maintainability, and reduce the need to reinvent the wheel for common functionalities.
 
-- **Access**: Can view public sections of the portfolio, such as project showcases and blog posts.
-- **Restrictions**: Cannot access any content management or account-related features.
+---
 
-### 2. User
+## 6. Lessons Learned
 
-- **Access**: Can create, manage, and edit blog posts and portfolio items.
-- **Permissions**: Can access protected routes such as `/api/user/profile/edit`, `/api/auth/refresh`, and other administrative features.
+### Challenges Faced
 
-User's role is encoded within their **JWT** (JSON Web Token), and role-based permissions are enforced using middleware. This middleware validates whether a user has the necessary role to access specific routes. By using route-level protection, we ensure that only authorized users can access restricted areas and perform certain actions.
+1. **Managing JWT Token in React**: One of the most challenging parts was managing the JWT token in React, especially when implementing it inside the context and providing it to all the child components. Ensuring that the token was available throughout the app while maintaining security and reactivity was tricky. We used React's context API to manage the authentication state and pass the token to the children, but ensuring proper token refreshing and synchronization across the application required careful planning and implementation.
 
-The following configuration defines the access control for different routes based on user roles:
+2. **CI/CD YAML Configuration Issues**: We struggled to test the CI/CD pipeline, which added significant time to the debugging process. After multiple failed attempts, we realized that the YAML configuration file we were running wasn't the updated one. The issue was that re-running the failed jobs didn’t apply the changes made to the YAML file. This meant we needed to trigger a completely new run for the new YAML configuration to take effect. Once we identified this, we were able to correct the configuration and successfully run the pipeline.
 
-```javascript
-module.exports = [
-  // Authentication routes
-  {
-    path: "/api/auth/logout",
-    methods: { POST: ["user"] }, // Only 'user' can POST to this route
-  },
-  {
-    path: "/api/auth/login",
-    methods: { POST: ["user", "guest"] }, // Both 'user' and 'guest' can POST to this route
-  },
-  {
-    path: "/api/auth/refresh",
-    methods: { POST: ["user"] }, // Only 'user' can refresh access token
-  },
-];
-```
+3. **Validation Mismatches**: Ensuring consistency between frontend and backend validation was another challenge. To resolve this, we synchronized validation rules between both layers, using Zod on the frontend and Joi on the backend.
 
-This configuration ensures that each route is protected based on the user’s role. By using middleware and JWT encoding, we enforce access control throughout the application, blocking unauthorized users from performing actions they aren’t allowed to.
+4. **Asynchronous Operations**: Integrating asynchronous API calls with proper error handling and token management was initially tricky. This was resolved by carefully handling errors with proper user feedback and ensuring that authentication states were properly maintained.
 
-## Lessons Learned
+### Resolution
 
-Throughout this project, we encountered several challenges, particularly in balancing security and usability. Below are some of the key lessons learned:
-
-### 1. Balancing Security with User Experience
-
-One challenge was deciding where to store tokens to maximize security without frustrating the user. We opted for storing **JWT tokens** in the Authorization header and **refresh tokens** in **HttpOnly cookies**, providing secure storage while maintaining smooth session continuity for users. Handling token expiry required careful consideration to avoid excessive logouts while minimizing the risk of token misuse.
-
-### 2. Granularity of Access Control
-
-Another challenge was determining the right level of granularity for role-based access. Since the application has relatively simple functionality, we opted for **route-level protection**. This simplified implementation, but we acknowledged the trade-off of not having more granular control over specific actions (e.g., read, write, delete) within a route. For now, this structure meets the project’s needs, but future iterations might require more detailed access control mechanisms.
-
-### 3. CSRF and XSS Protection
-
-Implementing secure token management to prevent **CSRF** and **XSS** attacks was critical. Storing refresh tokens in **HttpOnly cookies** provided additional security but added complexity to the token refresh process. We had to ensure that the token refresh process was smooth and seamless for the user to avoid session interruptions.
-
-Ultimately, these challenges led us to make design choices that emphasized security while maintaining a positive user experience. In future projects, we may consider more granular role-based permissions and explore further enhancements to session management.
+By focusing on clear and consistent validation and error handling mechanisms on both frontend and backend, we were able to address these challenges efficiently. Collaboration between frontend and backend also ensured that we maintained a seamless user experience and robust security measures. The CI/CD issue was resolved by triggering new pipeline runs and ensuring the updated YAML file was used, preventing further confusion.
