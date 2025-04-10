@@ -21,10 +21,16 @@ jobs:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
 
+      - name: List files for debugging
+        run: ls -la
+
+      - name: Navigate to the directory
+        run: cd backend
+
       - name: Setup node and pnpm
         uses: wyvox/action-setup-pnpm@v3
         with:
-          args: " --dir backend --ignore-scripts --fix-lockfile"
+          args: "--dir backend --ignore-scripts --fix-lockfile"
 
       # ======================
       # Backend
