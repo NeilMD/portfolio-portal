@@ -179,6 +179,17 @@ app.use(helmet());
 // Custom headers
 app.use(helmet.frameguard({ action: "sameorigin" }));
 app.use(helmet.referrerPolicy({ policy: "no-referrer-when-downgrade" }));
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'", "data:"],
+    },
+  })
+);
 
 logger.info("Google Auth Init");
 // Passport configuration for Google OAuth
